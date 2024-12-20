@@ -5520,7 +5520,7 @@ class wsdl extends nusoap_base
             $PHP_SELF = '';
         }
 
-        $b = '
+        $b = '<!DOCTYPE html>
 		<html><head><title>NuSOAP: ' . $this->serviceName . '</title>
 		<style type="text/css">
 		    body    { font-family: arial; color: #000000; background-color: #ffffff; margin: 0px 0px 0px 0px; }
@@ -5541,12 +5541,11 @@ class wsdl extends nusoap_base
 			padding-top: 10px; padding-bottom: 10px;}
 		    .hidden {
 			position: absolute; visibility: hidden; z-index: 200; left: 250px; top: 100px;
-			font-family: arial; overflow: hidden; width: 600;
-			padding: 20px; font-size: 10px; background-color: #999999;
-			layer-background-color:#FFFFFF; }
-		    a,a:active  { color: charcoal; font-weight: bold; }
+			font-family: arial; overflow: hidden; width: 600px;
+			padding: 20px; font-size: 10px; background-color: #999999; }
+		    a,a:active  { color: #36454f; font-weight: bold; }
 		    a:visited   { color: #666666; font-weight: bold; }
-		    a:hover     { color: cc3300; font-weight: bold; }
+		    a:hover     { color: #cc3300; font-weight: bold; }
 		</style>
 		<script language="JavaScript" type="text/javascript">
 		<!--
@@ -5604,13 +5603,13 @@ class wsdl extends nusoap_base
 				Click on an operation name to view it&apos;s details.</p>
 				<ul>';
         foreach ($this->getOperations() as $op => $data) {
-            $b .= "<li><a href='#' onclick=\"popout();popup('$op')\">$op</a></li>";
+            $b .= "<li><a href='#' onclick=\"popout();popup('$op')\">$op</a>";
             // create hidden div
             $b .= "<div id='$op' class='hidden'>
-				    <a href='#' onclick='popout()'><font color='#ffffff'>Close</font></a><br><br>";
+				    <a href='#' onclick='popout()'><span style=\"color: #ffffff\">Close</span></a><br><br>";
             foreach ($data as $donnie => $marie) { // loop through opdata
                 if ($donnie == 'input' || $donnie == 'output') { // show input/output data
-                    $b .= "<font color='white'>" . ucfirst($donnie) . ':</font><br>';
+                    $b .= '<span style="color: white">' . ucfirst($donnie) . ':</span><br>';
                     foreach ($marie as $captain => $tenille) { // loop through data
                         if ($captain == 'parts') { // loop thru parts
                             $b .= "&nbsp;&nbsp;$captain:<br>";
@@ -5624,13 +5623,13 @@ class wsdl extends nusoap_base
                         }
                     }
                 } else {
-                    $b .= "<font color='white'>" . ucfirst($donnie) . ":</font> $marie<br>";
+                    $b .= '<span style="color: white">' . ucfirst($donnie) . ":</span> $marie<br>";
                 }
             }
-            $b .= '</div>';
+            $b .= '</div></li>';
         }
         $b .= '
-				<ul>
+				</ul>
 			</div>
 		</div></body></html>';
         return $b;
