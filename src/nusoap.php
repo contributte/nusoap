@@ -4652,7 +4652,7 @@ class nusoap_server extends nusoap_base
     {
         global $HTTP_SERVER_VARS;
 
-        if (isset($_SERVER)) {
+        if (isset($_SERVER['SERVER_NAME'])) {
             $SERVER_NAME = $_SERVER['SERVER_NAME'];
             $SERVER_PORT = $_SERVER['SERVER_PORT'];
             $SCRIPT_NAME = $_SERVER['SCRIPT_NAME'];
