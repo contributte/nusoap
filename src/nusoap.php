@@ -4352,35 +4352,39 @@ class nusoap_server extends nusoap_base
         //begin code to compress payload - by John
         // NOTE: there is no way to know whether the Web server will also compress
         // this data.
-        if (strlen($payload) > 1024 && isset($this->headers) && isset($this->headers['accept-encoding'])) {
-            if (strstr($this->headers['accept-encoding'], 'gzip')) {
-                if (function_exists('gzencode')) {
-                    if (isset($this->debug_flag) && $this->debug_flag) {
-                        $payload .= "<!-- Content being gzipped -->";
-                    }
-                    $this->outgoing_headers[] = "Content-Encoding: gzip";
-                    $payload = gzencode($payload);
-                } else {
-                    if (isset($this->debug_flag) && $this->debug_flag) {
-                        $payload .= "<!-- Content will not be gzipped: no gzencode -->";
-                    }
-                }
-            } elseif (strstr($this->headers['accept-encoding'], 'deflate')) {
+	// added OS detecion by Illsteward to workaround WAMP issues
+	if (strtoupper(substr(PHP_OS, 0, 3)) !== 'WIN') 
+	{
+		if (strlen($payload) > 1024 && isset($this->headers) && isset($this->headers['accept-encoding'])) {
+            		if (strstr($this->headers['accept-encoding'], 'gzip')) {
+                		if (function_exists('gzencode')) {
+                    			if (isset($this->debug_flag) && $this->debug_flag) {
+                        			$payload .= "<!-- Content being gzipped -->";
+                    		}
+                    		$this->outgoing_headers[] = "Content-Encoding: gzip";
+                    		$payload = gzencode($payload);
+                	} else {
+                    	if (isset($this->debug_flag) && $this->debug_flag) {
+                        	$payload .= "<!-- Content will not be gzipped: no gzencode -->";
+                    		}
+                	}
+            	} elseif (strstr($this->headers['accept-encoding'], 'deflate')) {
                 // Note: MSIE requires gzdeflate output (no Zlib header and checksum),
                 // instead of gzcompress output,
                 // which conflicts with HTTP 1.1 spec (http://www.w3.org/Protocols/rfc2616/rfc2616-sec3.html#sec3.5)
-                if (function_exists('gzdeflate')) {
-                    if (isset($this->debug_flag) && $this->debug_flag) {
-                        $payload .= "<!-- Content being deflated -->";
-                    }
-                    $this->outgoing_headers[] = "Content-Encoding: deflate";
-                    $payload = gzdeflate($payload);
-                } else {
-                    if (isset($this->debug_flag) && $this->debug_flag) {
-                        $payload .= "<!-- Content will not be deflated: no gzcompress -->";
-                    }
-                }
-            }
+                	if (function_exists('gzdeflate')) {
+                    		if (isset($this->debug_flag) && $this->debug_flag) {
+                        		$payload .= "<!-- Content being deflated -->";
+                    		}
+                    		$this->outgoing_headers[] = "Content-Encoding: deflate";
+                    		$payload = gzdeflate($payload);
+                	} else {
+                    	if (isset($this->debug_flag) && $this->debug_flag) {
+                        	$payload .= "<!-- Content will not be deflated: no gzcompress -->";
+                    	}
+                	}
+	            }
+		}
         }
         //end code
         $this->outgoing_headers[] = "Content-Length: " . strlen($payload);
