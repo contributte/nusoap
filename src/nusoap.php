@@ -4463,8 +4463,9 @@ class nusoap_server extends nusoap_base
 
             // get/set custom response tag name
             $opData = $this->wsdl->getOperationData($this->methodname);
-            $outputMessage = $this->wsdl->getOperationData($this->methodname)['output']['message'];
-            $this->responseTagName = $outputMessage;
+            if ($message = $opData['output']['message']) {
+                $this->responseTagName = $message;
+            }
             $this->debug('responseTagName: ' . $this->responseTagName . ' methodURI: ' . $this->methodURI);
 
             $this->debug('calling parser->get_soapbody()');
