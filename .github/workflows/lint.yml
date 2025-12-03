@@ -7,6 +7,70 @@ on:
     branches: [ "*" ]
 
 jobs:
+  lint56:
+    name: "Linter"
+    uses: contributte/.github/.github/workflows/php.yml@v1
+    with:
+      name: "Linter"
+      run: "vendor/bin/parallel-lint src"
+      php: "5.6"
+
+  lint70:
+    name: "Linter"
+    uses: contributte/.github/.github/workflows/php.yml@v1
+    with:
+      name: "Linter"
+      run: "vendor/bin/parallel-lint src"
+      php: "7.0"
+
+  lint71:
+    name: "Linter"
+    uses: contributte/.github/.github/workflows/php.yml@v1
+    with:
+      name: "Linter"
+      run: "vendor/bin/parallel-lint src"
+      php: "7.1"
+
+  lint72:
+    name: "Linter"
+    uses: contributte/.github/.github/workflows/php.yml@v1
+    with:
+      name: "Linter"
+      run: "vendor/bin/parallel-lint src"
+      php: "7.2"
+
+  lint73:
+    name: "Linter"
+    uses: contributte/.github/.github/workflows/php.yml@v1
+    with:
+      name: "Linter"
+      run: "vendor/bin/parallel-lint src"
+      php: "7.3"
+
+  lint74:
+    name: "Linter"
+    uses: contributte/.github/.github/workflows/php.yml@v1
+    with:
+      name: "Linter"
+      run: "vendor/bin/parallel-lint src"
+      php: "7.4"
+
+  lint80:
+    name: "Linter"
+    uses: contributte/.github/.github/workflows/php.yml@v1
+    with:
+      name: "Linter"
+      run: "vendor/bin/parallel-lint src"
+      php: "8.0"
+
+  lint81:
+    name: "Linter"
+    uses: contributte/.github/.github/workflows/php.yml@v1
+    with:
+      name: "Linter"
+      run: "vendor/bin/parallel-lint src"
+      php: "8.1"
+
   lint82:
     name: "Linter"
     uses: contributte/.github/.github/workflows/php.yml@v1
@@ -15,10 +79,26 @@ jobs:
       run: "vendor/bin/parallel-lint src"
       php: "8.2"
 
-  lint56:
+  lint83:
     name: "Linter"
     uses: contributte/.github/.github/workflows/php.yml@v1
     with:
       name: "Linter"
       run: "vendor/bin/parallel-lint src"
-      php: "5.6"
+      php: "8.3"
+
+  lint84:
+    name: "Linter"
+    uses: contributte/.github/.github/workflows/php.yml@v1
+    with:
+      name: "Linter"
+      run: "vendor/bin/parallel-lint src"
+      php: "8.4"
+
+  lint85:
+    name: "Linter"
+    uses: contributte/.github/.github/workflows/php.yml@v1
+    with:
+      name: "Linter"
+      run: "vendor/bin/parallel-lint src"
+      php: "8.5"
