@@ -1,14 +1,13 @@
-<?php
+<?php declare(strict_types = 1);
 
-declare(strict_types=1);
+use Tester\Environment;
 
 if (@!include __DIR__ . '/../vendor/autoload.php') {
 	echo 'Install Nette Tester using `composer update --dev`';
 	exit(1);
 }
 
-// Configure Tester
-Tester\Environment::setup();
+Environment::setup();
 
 // Create a temporary directory for tests
 define('TEMP_DIR', __DIR__ . '/tmp/' . getmypid());
