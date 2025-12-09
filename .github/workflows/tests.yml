@@ -1,0 +1,56 @@
+name: "Tests"
+
+on:
+  pull_request:
+
+  push:
+    branches: [ "*" ]
+
+jobs:
+  tests80:
+    name: "Tests PHP 8.0"
+    uses: contributte/.github/.github/workflows/php.yml@v1
+    with:
+      name: "Tests"
+      run: "vendor/bin/tester tests -s"
+      php: "8.0"
+
+  tests81:
+    name: "Tests PHP 8.1"
+    uses: contributte/.github/.github/workflows/php.yml@v1
+    with:
+      name: "Tests"
+      run: "vendor/bin/tester tests -s"
+      php: "8.1"
+
+  tests82:
+    name: "Tests PHP 8.2"
+    uses: contributte/.github/.github/workflows/php.yml@v1
+    with:
+      name: "Tests"
+      run: "vendor/bin/tester tests -s"
+      php: "8.2"
+
+  tests83:
+    name: "Tests PHP 8.3"
+    uses: contributte/.github/.github/workflows/php.yml@v1
+    with:
+      name: "Tests"
+      run: "vendor/bin/tester tests -s"
+      php: "8.3"
+
+  tests84:
+    name: "Tests PHP 8.4"
+    uses: contributte/.github/.github/workflows/php.yml@v1
+    with:
+      name: "Tests"
+      run: "vendor/bin/tester tests -s"
+      php: "8.4"
+
+  tests85:
+    name: "Tests PHP 8.5"
+    uses: contributte/.github/.github/workflows/php.yml@v1
+    with:
+      name: "Tests"
+      run: "vendor/bin/tester tests -s"
+      php: "8.5"

@@ -4,3 +4,6 @@
 # Composer
 /vendor
 /composer.lock
+
+# Tests
+/tests/tmp
