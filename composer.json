@@ -19,7 +19,8 @@
     "ext-zlib": "*"
   },
   "require-dev": {
-    "php-parallel-lint/php-parallel-lint": "~1.2.0"
+    "php-parallel-lint/php-parallel-lint": "~1.2.0",
+    "nette/tester": "^2.5"
   },
   "autoload": {
     "classmap": ["src/"]
