@@ -7,22 +7,6 @@ on:
     branches: [ "*" ]
 
 jobs:
-  tests80:
-    name: "Tests PHP 8.0"
-    uses: contributte/.github/.github/workflows/php.yml@v1
-    with:
-      name: "Tests"
-      run: "vendor/bin/tester tests -s"
-      php: "8.0"
-
-  tests81:
-    name: "Tests PHP 8.1"
-    uses: contributte/.github/.github/workflows/php.yml@v1
-    with:
-      name: "Tests"
-      run: "vendor/bin/tester tests -s"
-      php: "8.1"
-
   tests82:
     name: "Tests PHP 8.2"
     uses: contributte/.github/.github/workflows/php.yml@v1
