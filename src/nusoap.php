@@ -4790,6 +4790,8 @@ class wsdl extends nusoap_base
     /** @var mixed */
     var $serviceName;
     var $wsdl_info;
+    /** @var string */
+    var $schemaTargetNamespace = '';
 
     /**
      * constructor
