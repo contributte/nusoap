@@ -1,40 +1,37 @@
-name: "Tests"
+name: "Nette Tester"
 
 on:
   pull_request:
+  workflow_dispatch:
 
   push:
-    branches: [ "*" ]
+    branches: ["*"]
+
+  schedule:
+    - cron: "0 8 * * 1"
 
 jobs:
-  tests82:
-    name: "Tests PHP 8.2"
-    uses: contributte/.github/.github/workflows/php.yml@v1
+  test84:
+    name: "Nette Tester"
+    uses: contributte/.github/.github/workflows/nette-tester.yml@master
     with:
-      name: "Tests"
-      run: "vendor/bin/tester tests -s"
-      php: "8.2"
-
-  tests83:
-    name: "Tests PHP 8.3"
-    uses: contributte/.github/.github/workflows/php.yml@v1
-    with:
-      name: "Tests"
-      run: "vendor/bin/tester tests -s"
-      php: "8.3"
-
-  tests84:
-    name: "Tests PHP 8.4"
-    uses: contributte/.github/.github/workflows/php.yml@v1
-    with:
-      name: "Tests"
-      run: "vendor/bin/tester tests -s"
       php: "8.4"
 
-  tests85:
-    name: "Tests PHP 8.5"
-    uses: contributte/.github/.github/workflows/php.yml@v1
+  test83:
+    name: "Nette Tester"
+    uses: contributte/.github/.github/workflows/nette-tester.yml@master
     with:
-      name: "Tests"
-      run: "vendor/bin/tester tests -s"
-      php: "8.5"
+      php: "8.3"
+
+  test82:
+    name: "Nette Tester"
+    uses: contributte/.github/.github/workflows/nette-tester.yml@master
+    with:
+      php: "8.2"
+
+  testlower:
+    name: "Nette Tester"
+    uses: contributte/.github/.github/workflows/nette-tester.yml@master
+    with:
+      php: "8.2"
+      composer: "composer update --no-interaction --no-progress --prefer-dist --prefer-stable --prefer-lowest"
