@@ -4,7 +4,3 @@
 # Composer
 /vendor
 /composer.lock
-
-# Tests
-/tests/tmp
-/tests/Cases/output
