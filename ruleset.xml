@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="vendor/squizlabs/php_codesniffer/phpcs.xsd"
+	name="Contributte"
+>
+	<rule ref="./vendor/contributte/qa/ruleset-8.2.xml"/>
+
+	<exclude-pattern>/tests/tmp</exclude-pattern>
+	<exclude-pattern>/tests/Cases/output</exclude-pattern>
+</ruleset>
