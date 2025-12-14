@@ -1,12 +1,22 @@
-.PHONY: install qa lint tests coverage
+.PHONY: install qa cs csf phpstan tests coverage
 
 install:
 	composer update
 
-qa: lint tests
+qa: phpstan cs
 
-lint:
-	vendor/bin/parallel-lint src tests
+cs:
+ifdef GITHUB_ACTION
+	vendor/bin/phpcs --standard=ruleset.xml --encoding=utf-8 --colors -nsp --extensions=php,phpt -q --report=checkstyle src tests | cs2pr
+else
+	vendor/bin/phpcs --standard=ruleset.xml --encoding=utf-8 --colors -nsp --extensions=php,phpt src tests
+endif
+
+csf:
+	vendor/bin/phpcbf --standard=ruleset.xml --encoding=utf-8 --colors -nsp --extensions=php,phpt src tests
+
+phpstan:
+	vendor/bin/phpstan analyse -c phpstan.neon
 
 tests:
 	vendor/bin/tester -s -p php --colors 1 -C tests/Cases
