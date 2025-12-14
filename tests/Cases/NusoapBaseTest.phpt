@@ -106,6 +106,36 @@ Toolkit::test(static function (): void {
 	Assert::same('hello &amp; world', $base->expandEntities('hello & world'));
 });
 
+// Test charencoding getter/setter
+Toolkit::test(static function (): void {
+	$base = new nusoap_base();
+
+	// Default should be true
+	Assert::true($base->getCharencoding());
+
+	// Test setting to false
+	$base->setCharencoding(false);
+	Assert::false($base->getCharencoding());
+
+	// Test setting back to true
+	$base->setCharencoding(true);
+	Assert::true($base->getCharencoding());
+});
+
+// Test expandEntities with charencoding disabled
+Toolkit::test(static function (): void {
+	$base = new nusoap_base();
+	$base->setCharencoding(false);
+
+	// When charencoding is false, entities should not be expanded
+	Assert::same('&', $base->expandEntities('&'));
+	Assert::same('<', $base->expandEntities('<'));
+	Assert::same('>', $base->expandEntities('>'));
+	Assert::same("'", $base->expandEntities("'"));
+	Assert::same('"', $base->expandEntities('"'));
+	Assert::same('hello & world', $base->expandEntities('hello & world'));
+});
+
 // Test isArraySimpleOrStruct
 Toolkit::test(static function (): void {
 	$base = new nusoap_base();
