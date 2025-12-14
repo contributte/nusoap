@@ -127,7 +127,7 @@ Toolkit::test(static function (): void {
 	$base = new nusoap_base();
 	$base->setCharencoding(false);
 
-	// When charencoding is false, entities should not be expanded
+	// When charencoding is false, characters are not converted to XML entities (they remain as literal characters)
 	Assert::same('&', $base->expandEntities('&'));
 	Assert::same('<', $base->expandEntities('<'));
 	Assert::same('>', $base->expandEntities('>'));

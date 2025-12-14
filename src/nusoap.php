@@ -397,7 +397,7 @@ class nusoap_base
     }
 
     /**
-     * gets the charencoding setting
+     * gets the charencoding setting that controls whether special characters are encoded as XML entities
      *
      * @return   boolean
      * @access   public
@@ -410,7 +410,7 @@ class nusoap_base
     /**
      * sets the charencoding setting
      *
-     * @param    boolean $charencoding The charencoding setting
+     * @param    boolean $charencoding Whether to encode special characters as XML entities in expandEntities()
      * @return   void
      * @access   public
      */
