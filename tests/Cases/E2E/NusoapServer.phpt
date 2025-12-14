@@ -3,7 +3,7 @@
 use Contributte\Tester\Toolkit;
 use Tester\Assert;
 
-require_once __DIR__ . '/../bootstrap.php';
+require_once __DIR__ . '/../../bootstrap.php';
 
 // Helper function to set up HTTP environment for SOAP requests
 function setupHttpEnvironment(string $soapAction = ''): void {
