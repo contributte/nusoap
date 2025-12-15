@@ -28,6 +28,11 @@
   },
   "minimum-stability": "dev",
   "prefer-stable": true,
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
+  },
   "extra": {
     "branch-alias": {
       "dev-master": "0.10.x-dev"
