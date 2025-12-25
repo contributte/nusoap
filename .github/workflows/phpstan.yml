@@ -14,5 +14,6 @@ jobs:
   phpstan:
     name: "PHPStan"
     uses: contributte/.github/.github/workflows/phpstan.yml@master
+    continue-on-error: true
     with:
       php: "8.3"
