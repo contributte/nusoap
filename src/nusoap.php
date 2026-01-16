@@ -1263,7 +1263,7 @@ class nusoap_xmlschema extends nusoap_base
                 $this->setError($errstr);
             }
 
-            xml_parser_free($this->parser);
+            (PHP_VERSION_ID < 80000) && xml_parser_free($this->parser);
             unset($this->parser);
         } else {
             $this->debug('no xml passed to parseString()!!');
@@ -4938,12 +4938,12 @@ class wsdl extends nusoap_base
             $this->debug($errstr);
             $this->debug("XML payload:\n" . $wsdl_string);
             $this->setError($errstr);
-            xml_parser_free($this->parser);
+            (PHP_VERSION_ID < 80000) && xml_parser_free($this->parser);
             unset($this->parser);
             return false;
         }
         // free the parser
-        xml_parser_free($this->parser);
+        (PHP_VERSION_ID < 80000) && xml_parser_free($this->parser);
         unset($this->parser);
         $this->debug('Parsing WSDL done');
         // catch wsdl parse errors
@@ -6832,7 +6832,7 @@ class nusoap_parser extends nusoap_base
                     }
                 }
             }
-            xml_parser_free($this->parser);
+            (PHP_VERSION_ID < 80000) && xml_parser_free($this->parser);
             unset($this->parser);
         } else {
             $this->debug('xml was empty, didn\'t parse!');
