@@ -397,6 +397,29 @@ class nusoap_base
     }
 
     /**
+     * gets the charencoding setting that controls whether special characters are encoded as XML entities
+     *
+     * @return   boolean
+     * @access   public
+     */
+    function getCharencoding()
+    {
+        return $this->charencoding;
+    }
+
+    /**
+     * sets the charencoding setting
+     *
+     * @param    boolean $charencoding Whether to encode special characters as XML entities in expandEntities()
+     * @return   void
+     * @access   public
+     */
+    function setCharencoding($charencoding)
+    {
+        $this->charencoding = $charencoding;
+    }
+
+    /**
      * detect if array is a simple array or a struct (associative array)
      *
      * @param    mixed $val The PHP array
@@ -7476,6 +7499,8 @@ class nusoap_client extends nusoap_base
                 $this->endpoint = $this->wsdl->wsdl;
                 $this->wsdlFile = $this->endpoint;
                 $this->debug('existing wsdl instance created from ' . $this->endpoint);
+                // propagate charencoding to wsdl
+                $this->wsdl->setCharencoding($this->charencoding);
                 $this->checkWSDL();
             } else {
                 $this->wsdlFile = $this->endpoint;
@@ -7770,6 +7795,8 @@ class nusoap_client extends nusoap_base
         $this->debug('instantiating wsdl class with doc: ' . $this->wsdlFile);
         $this->wsdl = new wsdl('', $this->proxyhost, $this->proxyport, $this->proxyusername, $this->proxypassword, $this->timeout, $this->response_timeout, $this->curl_options, $this->use_curl);
         $this->wsdl->setCredentials($this->username, $this->password, $this->authtype, $this->certRequest);
+        // propagate charencoding to wsdl
+        $this->wsdl->setCharencoding($this->charencoding);
         $this->wsdl->fetchWSDL($this->wsdlFile);
         $this->checkWSDL();
     }
