@@ -14,7 +14,7 @@ NuSOAP is a rewrite of SOAPx4, provided by NuSphere and Dietrich Ayala. It is a 
 
 <p align=center>
   <a href="https://github.com/pwnlabs/nusoap/actions"><img src="https://badgen.net/github/checks/pwnlabs/nusoap/master?cache=300"></a>
-  <a href="https://coveralls.io/r/pwnlabs/nusoap"><img src="https://badgen.net/coveralls/c/github/pwnlabs/nusoap?cache=300"></a>
+  <a href="https://codecov.io/gh/contributte/nusoap"><img src="https://badgen.net/codecov/c/github/contributte/nusoap"></a>
   <a href="https://packagist.org/packages/econea/nusoap"><img src="https://badgen.net/packagist/dm/econea/nusoap"></a>
   <a href="https://packagist.org/packages/econea/nusoap"><img src="https://badgen.net/packagist/dt/econea/nusoap"></a>
   <a href="https://packagist.org/packages/econea/nusoap"><img src="https://badgen.net/packagist/v/econea/nusoap"></a>
