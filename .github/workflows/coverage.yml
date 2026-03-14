@@ -15,5 +15,5 @@ jobs:
     name: "Nette Tester"
     uses: contributte/.github/.github/workflows/nette-tester-coverage-v2.yml@master
     with:
-      php: "8.3"
+      php: "8.5"
     secrets: inherit

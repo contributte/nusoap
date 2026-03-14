@@ -11,6 +11,12 @@ on:
     - cron: "0 8 * * 1"
 
 jobs:
+  test85:
+    name: "Nette Tester"
+    uses: contributte/.github/.github/workflows/nette-tester.yml@master
+    with:
+      php: "8.5"
+
   test84:
     name: "Nette Tester"
     uses: contributte/.github/.github/workflows/nette-tester.yml@master
