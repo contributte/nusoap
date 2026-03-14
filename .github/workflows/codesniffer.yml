@@ -16,4 +16,4 @@ jobs:
     uses: contributte/.github/.github/workflows/codesniffer.yml@master
     continue-on-error: true
     with:
-      php: "8.3"
+      php: "8.5"
