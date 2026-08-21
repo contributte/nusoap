@@ -23,6 +23,19 @@ Toolkit::test(static function (): void {
 	Assert::match('~^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}$~', $isoLocal);
 });
 
+// Test timestamp_to_iso8601 with UTC returns UTC time, not local time with a Z suffix
+Toolkit::test(static function (): void {
+	$originalTz = date_default_timezone_get();
+	date_default_timezone_set('America/Los_Angeles');
+
+	try {
+		Assert::same('1970-01-01T00:00:00Z', timestamp_to_iso8601(0, true));
+		Assert::same('2023-06-15T12:30:45Z', timestamp_to_iso8601(1686832245, true));
+	} finally {
+		date_default_timezone_set($originalTz);
+	}
+});
+
 // Test iso8601_to_timestamp with UTC
 Toolkit::test(static function (): void {
 	$isoString = '2023-06-15T12:30:45Z';
