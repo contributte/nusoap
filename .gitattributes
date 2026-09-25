@@ -9,3 +9,4 @@ tests export-ignore
 Makefile export-ignore
 phpstan.neon export-ignore
 ruleset.xml export-ignore
+.editorconfig export-ignore
