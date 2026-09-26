@@ -424,3 +424,30 @@ Toolkit::test(static function (): void {
 	Assert::true((new DOMDocument())->loadXML($response));
 	Assert::contains('<sayHelloResponse><return>Hello, World!</return></sayHelloResponse>', $response);
 });
+
+// Test E2E: server does not override the web server's Server header (issue #153)
+Toolkit::test(static function (): void {
+	$server = createTestServer();
+
+	setupHttpEnvironment('urn:TestService#sayHello');
+
+	$soapRequest = '<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope
+    xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ns1="urn:TestService">
+    <SOAP-ENV:Body>
+        <ns1:sayHello>
+            <name xsi:type="xsd:string">World</name>
+        </ns1:sayHello>
+    </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>';
+
+	ob_start();
+	$server->service($soapRequest);
+	ob_end_clean();
+
+	$headerNames = array_map(static fn (string $header): string => strtolower(strstr($header, ':', true)), $server->outgoing_headers);
+	Assert::notContains('server', $headerNames);
+	Assert::contains('x-soap-server', $headerNames);
+});

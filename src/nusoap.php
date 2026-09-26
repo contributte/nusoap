@@ -4305,7 +4305,7 @@ class nusoap_server extends nusoap_base
         if (isset($this->debug_flag) && $this->debug_flag) {
             $payload .= $this->getDebugAsXMLComment();
         }
-        $this->outgoing_headers[] = "Server: $this->title Server v$this->version";
+        // Let the Web server set the Server header, a second one triggers duplicate header warnings (e.g. nginx)
         preg_match('/\$Revisio' . 'n: ([^ ]+)/', $this->revision, $rev);
         $this->outgoing_headers[] = "X-SOAP-Server: $this->title/$this->version (" . $rev[1] . ")";
         // Let the Web server decide about this
