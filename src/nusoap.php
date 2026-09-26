@@ -2414,8 +2414,10 @@ class soap_transport_http extends nusoap_base
         if ($this->io_method() == 'socket') {
             if (!is_array($this->proxy)) {
                 $host = $this->host;
+                $port = $this->port;
             } else {
                 $host = $this->proxy['host'];
+                $port = $this->proxy['port'];
             }
 
             // use persistent connection
@@ -2432,13 +2434,13 @@ class soap_transport_http extends nusoap_base
             if ($this->scheme == 'ssl') {
                 $host = 'ssl://' . $host;
             }
-            $this->debug('calling fsockopen with host ' . $host . ' connection_timeout ' . $connection_timeout);
+            $this->debug('calling fsockopen with host ' . $host . ' port ' . $port . ' connection_timeout ' . $connection_timeout);
 
             // open socket
             if ($connection_timeout > 0) {
-                $this->fp = @fsockopen($host, $this->port, $this->errno, $this->error_str, $connection_timeout);
+                $this->fp = @fsockopen($host, $port, $this->errno, $this->error_str, $connection_timeout);
             } else {
-                $this->fp = @fsockopen($host, $this->port, $this->errno, $this->error_str);
+                $this->fp = @fsockopen($host, $port, $this->errno, $this->error_str);
             }
 
             // test pointer
