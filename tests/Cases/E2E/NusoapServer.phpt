@@ -370,3 +370,32 @@ Toolkit::test(static function (): void {
 
 	Assert::same($soapRequest, $server->requestSOAP);
 });
+
+// Test E2E: server without WSDL handles a request
+Toolkit::test(static function (): void {
+	$server = new nusoap_server();
+	$server->register('sayHello', array(), array(), 'urn:TestService', 'urn:TestService#sayHello');
+
+	setupHttpEnvironment('urn:TestService#sayHello');
+
+	$soapRequest = '<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope
+    xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ns1="urn:TestService">
+    <SOAP-ENV:Body>
+        <ns1:sayHello>
+            <name xsi:type="xsd:string">World</name>
+        </ns1:sayHello>
+    </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>';
+
+	ob_start();
+	$server->service($soapRequest);
+	$response = ob_get_clean();
+
+	Assert::contains('sayHelloResponse', $response);
+	Assert::contains('Hello, World!', $response);
+	Assert::notContains('SOAP-ENV:Fault', $response);
+});
