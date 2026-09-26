@@ -1,2 +1,5 @@
 /tmp
-/Cases/output
+
+# Nette Tester output of failed tests
+*.actual
+*.expected
