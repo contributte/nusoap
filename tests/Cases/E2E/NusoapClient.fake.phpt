@@ -15,6 +15,7 @@ function sayHello(string $name): string
 function createServer(): nusoap_server
 {
 	$server = new nusoap_server();
+	$server->configureWSDL('TestService', 'urn:TestService', 'http://soap.invalid/service');
 	$server->register('sayHello', ['name' => 'xsd:string'], ['return' => 'xsd:string'], 'urn:TestService', 'urn:TestService#sayHello');
 
 	return $server;
@@ -32,6 +33,21 @@ Toolkit::test(static function (): void {
 
 	Assert::false($client->getError());
 	Assert::same('Hello, World!', $result);
+	Assert::notContains('calling fsockopen', $client->getDebug());
+});
+
+// Test client in WSDL mode calls an in-process server through a fake socket connection
+Toolkit::test(static function (): void {
+	$client = new nusoap_client(createServer()->wsdl, true);
+	$client->persistentConnection = FakeHttpStream::createTransport(
+		'http://soap.invalid/service',
+		FakeHttpStream::serve(static fn (): nusoap_server => createServer())
+	);
+
+	$result = $client->call('sayHello', ['name' => 'WSDL']);
+
+	Assert::false($client->getError());
+	Assert::same('Hello, WSDL!', $result);
 	Assert::notContains('calling fsockopen', $client->getDebug());
 });
 
