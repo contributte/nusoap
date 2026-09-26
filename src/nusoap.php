@@ -4000,8 +4000,8 @@ class nusoap_server extends nusoap_base
             }
         }
         $this->request .= "\r\n" . $data;
-        $data = $this->parseRequest($this->headers, $data);
         $this->requestSOAP = $data;
+        $this->parseRequest($this->headers, $data);
         $this->debug('leaving parse_request');
     }
 

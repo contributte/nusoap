@@ -344,3 +344,29 @@ Toolkit::test(static function (): void {
 	Assert::contains('Hello, !', $response);
 	Assert::notContains('SOAP-ENV:Fault', $response);
 });
+
+// Test E2E: requestSOAP holds the incoming SOAP message (issue #72)
+Toolkit::test(static function (): void {
+	$server = createTestServer();
+
+	setupHttpEnvironment('urn:TestService#sayHello');
+
+	$soapRequest = '<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope
+    xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ns1="urn:TestService">
+    <SOAP-ENV:Body>
+        <ns1:sayHello>
+            <name xsi:type="xsd:string">World</name>
+        </ns1:sayHello>
+    </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>';
+
+	ob_start();
+	$server->service($soapRequest);
+	ob_end_clean();
+
+	Assert::same($soapRequest, $server->requestSOAP);
+});
