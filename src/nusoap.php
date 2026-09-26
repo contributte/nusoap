@@ -2565,10 +2565,11 @@ class soap_transport_http extends nusoap_base
                     } else {
                         $this->setCurlOption(CURLOPT_SSL_VERIFYPEER, 1);
                     }
-                    if (isset($this->certRequest['verifyhost'])) {
+                    // cURL no longer accepts 1 for CURLOPT_SSL_VERIFYHOST, use 2 instead
+                    if (isset($this->certRequest['verifyhost']) && $this->certRequest['verifyhost'] != 1) {
                         $this->setCurlOption(CURLOPT_SSL_VERIFYHOST, $this->certRequest['verifyhost']);
                     } else {
-                        $this->setCurlOption(CURLOPT_SSL_VERIFYHOST, 1);
+                        $this->setCurlOption(CURLOPT_SSL_VERIFYHOST, 2);
                     }
                     if (isset($this->certRequest['sslcertfile'])) {
                         $this->setCurlOption(CURLOPT_SSLCERT, $this->certRequest['sslcertfile']);
