@@ -234,7 +234,8 @@ class nusoap_client_mime extends nusoap_client {
 			$params['decode_bodies'] = true;
 			$params['decode_headers'] = true;
 
-			$structure = Mail_mimeDecode::decode($params);
+			$decoder = new Mail_mimeDecode($params['input']);
+			$structure = $decoder->decode($params);
 
 			foreach ($structure->parts as $part) {
 				if (!isset($part->disposition) && (strstr($part->headers['content-type'], 'text/xml'))) {
@@ -464,12 +465,15 @@ class nusoap_server_mime extends nusoap_server {
 			$params['decode_bodies'] = true;
 			$params['decode_headers'] = true;
 
-			$structure = Mail_mimeDecode::decode($params);
+			$decoder = new Mail_mimeDecode($params['input']);
+			$structure = $decoder->decode($params);
+			$rootFound = false;
 
 			foreach ($structure->parts as $part) {
 				if (!isset($part->disposition) && (strstr($part->headers['content-type'], 'text/xml'))) {
 					$this->debug('Have root part of type ' . $part->headers['content-type']);
-					$return = parent::parseRequest($part->headers, $part->body);
+					$rootFound = true;
+					parent::parseRequest($part->headers, $part->body);
 				} else {
 					$this->debug('Have an attachment of type ' . $part->headers['content-type']);
 					$info['data'] = $part->body;
@@ -480,8 +484,8 @@ class nusoap_server_mime extends nusoap_server {
 				}
 			}
 
-			if (isset($return)) {
-				return $return;
+			if ($rootFound) {
+				return;
 			}
 
 			$this->setError('No root part found in multipart/related content');
