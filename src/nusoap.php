@@ -4853,14 +4853,17 @@ class wsdl extends nusoap_base
                         isset($this->bindings[$binding]['operations'][$operation]['input']) ?
                             array_merge($this->bindings[$binding]['operations'][$operation]['input'], $this->portTypes[$bindingData['portType']][$operation]['input']) :
                             $this->portTypes[$bindingData['portType']][$operation]['input'];
-                    $this->bindings[$binding]['operations'][$operation]['output'] =
-                        isset($this->bindings[$binding]['operations'][$operation]['output']) ?
-                            array_merge($this->bindings[$binding]['operations'][$operation]['output'], $this->portTypes[$bindingData['portType']][$operation]['output']) :
-                            $this->portTypes[$bindingData['portType']][$operation]['output'];
+                    // one-way operations have no output
+                    if (isset($this->portTypes[$bindingData['portType']][$operation]['output'])) {
+                        $this->bindings[$binding]['operations'][$operation]['output'] =
+                            isset($this->bindings[$binding]['operations'][$operation]['output']) ?
+                                array_merge($this->bindings[$binding]['operations'][$operation]['output'], $this->portTypes[$bindingData['portType']][$operation]['output']) :
+                                $this->portTypes[$bindingData['portType']][$operation]['output'];
+                    }
                     if (isset($this->messages[$this->bindings[$binding]['operations'][$operation]['input']['message']])) {
                         $this->bindings[$binding]['operations'][$operation]['input']['parts'] = $this->messages[$this->bindings[$binding]['operations'][$operation]['input']['message']];
                     }
-                    if (isset($this->messages[$this->bindings[$binding]['operations'][$operation]['output']['message']])) {
+                    if (isset($this->bindings[$binding]['operations'][$operation]['output']['message'], $this->messages[$this->bindings[$binding]['operations'][$operation]['output']['message']])) {
                         $this->bindings[$binding]['operations'][$operation]['output']['parts'] = $this->messages[$this->bindings[$binding]['operations'][$operation]['output']['message']];
                     }
                     // Set operation style if necessary, but do not override one already provided

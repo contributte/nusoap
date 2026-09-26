@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/"
+	xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+	xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	xmlns:tns="urn:OneWayService"
+	targetNamespace="urn:OneWayService">
+	<message name="notifyRequest">
+		<part name="message" type="xsd:string"/>
+	</message>
+	<message name="pingRequest"/>
+	<message name="pingResponse">
+		<part name="return" type="xsd:string"/>
+	</message>
+	<portType name="OneWayServicePortType">
+		<operation name="notify">
+			<input message="tns:notifyRequest"/>
+		</operation>
+		<operation name="ping">
+			<input message="tns:pingRequest"/>
+			<output message="tns:pingResponse"/>
+		</operation>
+	</portType>
+	<binding name="OneWayServiceBinding" type="tns:OneWayServicePortType">
+		<soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+		<operation name="notify">
+			<soap:operation soapAction="urn:OneWayService#notify" style="rpc"/>
+			<input><soap:body use="encoded" namespace="urn:OneWayService" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></input>
+		</operation>
+		<operation name="ping">
+			<soap:operation soapAction="urn:OneWayService#ping" style="rpc"/>
+			<input><soap:body use="encoded" namespace="urn:OneWayService" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></input>
+			<output><soap:body use="encoded" namespace="urn:OneWayService" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></output>
+		</operation>
+	</binding>
+	<service name="OneWayService">
+		<port name="OneWayServicePort" binding="tns:OneWayServiceBinding">
+			<soap:address location="http://localhost/one-way"/>
+		</port>
+	</service>
+</definitions>

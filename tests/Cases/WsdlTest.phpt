@@ -46,3 +46,18 @@ Toolkit::test(static function (): void {
 	Assert::type('nusoap_base', $wsdl);
 	Assert::same('NuSOAP', $wsdl->title);
 });
+
+// Test parsing WSDL with a one-way operation (input only) does not emit warnings (issue #92)
+Toolkit::test(static function (): void {
+	$wsdl = new wsdl(__DIR__ . '/../fixtures/one-way.wsdl');
+
+	Assert::false($wsdl->getError());
+
+	$notify = $wsdl->getOperationData('notify');
+	Assert::same('notifyRequest', $notify['input']['message']);
+	Assert::false(isset($notify['output']));
+
+	$ping = $wsdl->getOperationData('ping');
+	Assert::same('pingRequest', $ping['input']['message']);
+	Assert::same('pingResponse', $ping['output']['message']);
+});
