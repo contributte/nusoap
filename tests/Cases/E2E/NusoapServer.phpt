@@ -399,3 +399,28 @@ Toolkit::test(static function (): void {
 	Assert::contains('Hello, World!', $response);
 	Assert::notContains('SOAP-ENV:Fault', $response);
 });
+
+// Test E2E: rpc/literal response without method namespace is well-formed XML
+Toolkit::test(static function (): void {
+	$server = new nusoap_server();
+	$server->configureWSDL('TestService', 'urn:TestService', 'http://localhost/test');
+	$server->register('sayHello', array('name' => 'xsd:string'), array('return' => 'xsd:string'), 'urn:TestService', 'urn:TestService#sayHello', 'rpc', 'literal');
+
+	setupHttpEnvironment('urn:TestService#sayHello');
+
+	$soapRequest = '<?xml version="1.0" encoding="UTF-8"?>
+<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">
+    <SOAP-ENV:Body>
+        <sayHello xmlns="">
+            <name>World</name>
+        </sayHello>
+    </SOAP-ENV:Body>
+</SOAP-ENV:Envelope>';
+
+	ob_start();
+	$server->service($soapRequest);
+	$response = ob_get_clean();
+
+	Assert::true((new DOMDocument())->loadXML($response));
+	Assert::contains('<sayHelloResponse><return>Hello, World!</return></sayHelloResponse>', $response);
+});
