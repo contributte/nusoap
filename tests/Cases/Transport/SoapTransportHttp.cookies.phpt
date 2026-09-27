@@ -33,6 +33,36 @@ Toolkit::test(static function (): void {
 	], $http->parseCookie('token=a=b=c'));
 });
 
+// Test parseCookie reads attribute names case-insensitively (RFC 6265)
+Toolkit::test(static function (): void {
+	$http = new soap_transport_http('http://example.com/');
+
+	Assert::same([
+		'name' => 'SID',
+		'value' => 'abc',
+		'domain' => 'example.com',
+		'path' => '/app',
+		'expires' => 'Wed, 01 Jan 2031 00:00:00 GMT',
+		'secure' => true,
+	], $http->parseCookie('SID=abc; Path=/app; Domain=example.com; Expires=Wed, 01 Jan 2031 00:00:00 GMT; Secure; HttpOnly'));
+});
+
+// Test parseCookie does not read attributes from the cookie value
+Toolkit::test(static function (): void {
+	$http = new soap_transport_http('http://example.com/');
+
+	Assert::same([
+		'name' => 'redirect',
+		'value' => 'path=/admin',
+		'domain' => '',
+		'path' => '/',
+		'expires' => '',
+		'secure' => false,
+	], $http->parseCookie('redirect=path=/admin'));
+
+	Assert::false($http->parseCookie('name=secure')['secure']);
+});
+
 // Test parseCookie returns an empty array for a cookie without name=value
 Toolkit::test(static function (): void {
 	$http = new soap_transport_http('http://example.com/');
