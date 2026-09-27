@@ -4208,7 +4208,14 @@ class nusoap_server extends nusoap_base
                     //foreach ($this->opData['output']['parts'] as $name => $type) {
                     //	$this->debug('wrap in element named ' . $name);
                     //}
-                    $opParams = array($this->methodreturn);
+                    $out = isset($this->operations[$this->methodname]['out']) ? $this->operations[$this->methodname]['out'] : array();
+                    if ($this->opData['style'] == 'document' && count($out) == 1 && (is_scalar($this->methodreturn) || is_null($this->methodreturn))) {
+                        // register() wraps document/literal outputs in a response element, so wrap a single returned value too
+                        $this->debug('document style with single output, so wrap the method return in element ' . key($out));
+                        $opParams = array(array(key($out) => $this->methodreturn));
+                    } else {
+                        $opParams = array($this->methodreturn);
+                    }
                 }
                 $opParams = isset($opParams) ? $opParams : [];
                 $return_val = $this->wsdl->serializeRPCParameters($this->methodname, 'output', $opParams);
