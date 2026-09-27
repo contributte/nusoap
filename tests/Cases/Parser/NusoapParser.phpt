@@ -206,6 +206,15 @@ Toolkit::test(static function (): void {
 	Assert::same("xml was empty, didn't parse!", $parser->getError());
 });
 
+// Test parser reports truncated XML
+Toolkit::test(static function (): void {
+	$xml = envelope('<ns1:r xmlns:ns1="urn:x"><v>1</v></ns1:r>');
+	$parser = new nusoap_parser(substr($xml, 0, -20));
+
+	Assert::match('XML error parsing SOAP payload on line 1: %a%', $parser->getError());
+	Assert::null($parser->get_soapbody());
+});
+
 // Test parser rejects an XML declaration encoding that differs from the HTTP charset
 Toolkit::test(static function (): void {
 	$xml = str_replace('encoding="UTF-8"', 'encoding="ISO-8859-2"', envelope('<ns1:r xmlns:ns1="urn:x"/>'));
