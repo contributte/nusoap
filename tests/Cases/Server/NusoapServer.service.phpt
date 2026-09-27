@@ -330,3 +330,22 @@ Toolkit::test(static function (): void {
 	Assert::same('SOAP-ENV:Client', $server->fault->faultcode);
 	Assert::match("method 'Missing..Namespace..method'%a%not defined in service%a%", $server->fault->faultstring);
 });
+
+// Test server decodes a gzip request with an original file name in the gzip header
+Toolkit::test(static function (): void {
+	$envelope = requestEnvelope('serviceEcho');
+	$gzip = "\x1f\x8b\x08\x08\0\0\0\0\0\x03request.xml\0" . gzdeflate($envelope) . pack('V', crc32($envelope)) . pack('V', strlen($envelope));
+
+	[$server] = serve(createServer(), $gzip, ['HTTP_CONTENT_ENCODING' => 'gzip']);
+
+	Assert::false($server->fault);
+	Assert::same($envelope, $server->requestSOAP);
+});
+
+// Test server reports an invalid gzip request as a client fault
+Toolkit::test(static function (): void {
+	[$server] = serve(createServer(), 'not gzip data', ['HTTP_CONTENT_ENCODING' => 'gzip']);
+
+	Assert::same('SOAP-ENV:Client', $server->fault->faultcode);
+	Assert::same('Errors occurred when trying to decode the data', $server->fault->faultstring);
+});

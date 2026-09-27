@@ -4021,7 +4021,7 @@ class nusoap_server extends nusoap_base
                 if (function_exists('gzuncompress')) {
                     if ($this->headers['content-encoding'] == 'deflate' && $degzdata = @gzuncompress($data)) {
                         $data = $degzdata;
-                    } elseif ($this->headers['content-encoding'] == 'gzip' && $degzdata = gzinflate(substr($data, 10))) {
+                    } elseif ($this->headers['content-encoding'] == 'gzip' && $degzdata = @gzdecode($data)) {
                         $data = $degzdata;
                     } else {
                         $this->fault('SOAP-ENV:Client', 'Errors occurred when trying to decode the data');
