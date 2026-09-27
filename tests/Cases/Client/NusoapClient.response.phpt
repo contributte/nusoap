@@ -70,6 +70,15 @@ Toolkit::test(static function (): void {
 	}
 });
 
+// Test client reads the content encoding case-insensitively
+Toolkit::test(static function (): void {
+	$body = gzencode(RESPONSE_ENVELOPE);
+	$client = callWithResponse(cannedResponse("Content-Encoding: GZIP\r\nContent-Length: " . strlen($body) . "\r\n", $body));
+
+	Assert::false($client->getError());
+	Assert::same('Canned', $client->return);
+});
+
 // Test client reports unsupported content encoding
 Toolkit::test(static function (): void {
 	$client = callWithResponse(cannedResponse(

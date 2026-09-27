@@ -3389,7 +3389,9 @@ class soap_transport_http extends nusoap_base
 
         // decode content-encoding
         if (isset($this->incoming_headers['content-encoding']) && $this->incoming_headers['content-encoding'] != '') {
-            if (strtolower($this->incoming_headers['content-encoding']) == 'deflate' || strtolower($this->incoming_headers['content-encoding']) == 'gzip') {
+            // content codings are case-insensitive
+            $encoding = strtolower($this->incoming_headers['content-encoding']);
+            if ($encoding === 'deflate' || $encoding === 'gzip') {
                 $header_data = "";
                 // if decoding works, use it. else assume data wasn't gzencoded
                 if (function_exists('gzinflate')) {
@@ -3398,7 +3400,7 @@ class soap_transport_http extends nusoap_base
                     // this means there are no Zlib headers, although there should be
                     $this->debug('The gzinflate function exists');
                     $datalen = strlen($data);
-                    if ($this->incoming_headers['content-encoding'] == 'deflate') {
+                    if ($encoding === 'deflate') {
                         if ($degzdata = @gzinflate($data)) {
                             $data = $degzdata;
                             $this->debug('The payload has been inflated to ' . strlen($data) . ' bytes');
@@ -3414,7 +3416,7 @@ class soap_transport_http extends nusoap_base
                             $this->debug('Error using gzinflate to inflate the payload');
                             $this->setError('Error using gzinflate to inflate the payload');
                         }
-                    } elseif ($this->incoming_headers['content-encoding'] == 'gzip') {
+                    } elseif ($encoding === 'gzip') {
                         if ($degzdata = @gzinflate(substr($data, 10))) {    // do our best
                             $data = $degzdata;
                             $this->debug('The payload has been un-gzipped to ' . strlen($data) . ' bytes');
