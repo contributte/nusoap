@@ -3461,42 +3461,27 @@ class soap_transport_http extends nusoap_base
 	 */
     function parseCookie($cookie_str)
     {
-        $cookie_str = str_replace('; ', ';', $cookie_str) . ';';
-        $data = explode (';', $cookie_str);
-        $value_str = $data[0];
+        $data = explode(';', $cookie_str);
+        $value_str = trim(array_shift($data));
 
-        $cookie_param = 'domain=';
-        $start = strpos($cookie_str, $cookie_param);
-        if ($start > 0) {
-            $domain = substr($cookie_str, $start + strlen($cookie_param));
-            $domain = substr($domain, 0, strpos($domain, ';'));
-        } else {
-            $domain = '';
-        }
-
-        $cookie_param = 'expires=';
-        $start = strpos($cookie_str, $cookie_param);
-        if ($start > 0) {
-            $expires = substr($cookie_str, $start + strlen($cookie_param));
-            $expires = substr($expires, 0, strpos($expires, ';'));
-        } else {
-            $expires = '';
-        }
-
-        $cookie_param = 'path=';
-        $start = strpos($cookie_str, $cookie_param);
-        if ($start > 0) {
-            $path = substr($cookie_str, $start + strlen($cookie_param));
-            $path = substr($path, 0, strpos($path, ';'));
-        } else {
-            $path = '/';
-        }
-
-        $cookie_param = ';secure;';
-        if (strpos($cookie_str, $cookie_param) !== false) {
-            $secure = true;
-        } else {
-            $secure = false;
+        // attribute names are case-insensitive (RFC 6265)
+        $domain = '';
+        $expires = '';
+        $path = '/';
+        $secure = false;
+        foreach ($data as $attribute) {
+            $attribute = explode('=', trim($attribute), 2);
+            $attribute_name = strtolower($attribute[0]);
+            $attribute_value = isset($attribute[1]) ? $attribute[1] : '';
+            if ($attribute_name === 'domain') {
+                $domain = $attribute_value;
+            } elseif ($attribute_name === 'expires') {
+                $expires = $attribute_value;
+            } elseif ($attribute_name === 'path' && $attribute_value !== '') {
+                $path = $attribute_value;
+            } elseif ($attribute_name === 'secure') {
+                $secure = true;
+            }
         }
 
         $sep_pos = strpos($value_str, '=');
