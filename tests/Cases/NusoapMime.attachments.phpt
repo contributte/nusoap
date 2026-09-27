@@ -7,6 +7,11 @@ use Tester\Assert;
 require_once __DIR__ . '/../bootstrap.php';
 require_once __DIR__ . '/../../src/nusoapmime.php';
 
+function mimeEcho(string $v): string
+{
+	return $v;
+}
+
 // Test addAttachment stores the attachment and returns its content id
 Toolkit::test(static function (): void {
 	$client = new nusoap_client_mime('http://soap.invalid/service');
@@ -103,6 +108,40 @@ Toolkit::test(static function (): void {
 		'contenttype' => 'text/plain; name=file.txt',
 		'cid' => '<cid1>',
 	]], $server->getAttachments());
+});
+
+// Test server without attachments sends a plain SOAP body
+Toolkit::test(static function (): void {
+	$server = new nusoap_server_mime();
+
+	Assert::same([], $server->responseAttachments);
+	Assert::same('<soap/>', $server->getHTTPBody('<soap/>'));
+	Assert::same('text/xml', $server->getHTTPContentType());
+	Assert::same('ISO-8859-1', $server->getHTTPContentTypeCharset());
+});
+
+// Test server without attachments serves a request
+Toolkit::test(static function (): void {
+	// phpcs:disable SlevomatCodingStandard.Variables.DisallowSuperGlobalVariable
+	$_SERVER['REQUEST_METHOD'] = 'POST';
+	$_SERVER['CONTENT_TYPE'] = 'text/xml; charset=ISO-8859-1';
+	// phpcs:enable
+
+	$server = new nusoap_server_mime();
+	$server->register('mimeEcho');
+
+	$request = '<?xml version="1.0" encoding="ISO-8859-1"?>'
+		. '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">'
+		. '<SOAP-ENV:Body><ns1:mimeEcho xmlns:ns1="urn:x"><v>hello</v></ns1:mimeEcho></SOAP-ENV:Body>'
+		. '</SOAP-ENV:Envelope>';
+
+	ob_start();
+	$server->service($request);
+	$response = (string) ob_get_clean();
+
+	Assert::false($server->getError());
+	Assert::contains('<return xsi:type="xsd:string">hello</return>', $response);
+	Assert::contains('Content-Type: text/xml; charset=ISO-8859-1', implode("\n", $server->outgoing_headers));
 });
 
 // Test server with attachments sends a multipart/related response
