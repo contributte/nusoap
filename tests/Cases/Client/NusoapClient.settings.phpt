@@ -204,6 +204,56 @@ Toolkit::test(static function (): void {
 	Assert::same([CURLOPT_TIMEOUT => 5], $proxy->curl_options);
 });
 
+// Test getProxy does not execute code from quoted WSDL values
+Toolkit::test(static function (): void {
+	$server = new nusoap_server();
+	$server->configureWSDL('Evil', 'urn:Evil', 'http://soap.invalid/evil');
+	$server->register('add', ['a' => 'xsd:int'], ['return' => 'xsd:int'], 'urn:Evil', "urn:Evil#add'.define('PROXY_INJECTED', 1).'");
+	$file = Environment::getTestDir() . '/evil.wsdl';
+	file_put_contents($file, $server->wsdl->serialize());
+
+	$client = new nusoap_client($file, 'wsdl');
+	$code = $client->getProxyClassCode();
+
+	Assert::contains("return \$this->call('add', \$params, 'http://testuri.com', 'urn:Evil#add\\'.define(\\'PROXY_INJECTED\\', 1).\\'');", $code);
+
+	eval(str_replace('class nusoap_proxy_', 'class nusoap_proxy_test_', $code));
+	Assert::false(defined('PROXY_INJECTED'));
+});
+
+// Test getProxy rejects operation and part names that are not PHP identifiers
+Toolkit::test(static function (): void {
+	$client = new nusoap_client(createCalcWsdlFile(), 'wsdl');
+	$client->loadWSDL();
+	$operations = $client->operations;
+
+	$client->operations = ['x() {} } define(\'PROXY_INJECTED\', 1); class y { function z' => $operations['add']];
+	Assert::null($client->getProxy());
+	Assert::match('Operation name %a% is not a valid PHP method name', $client->getError());
+
+	$client = new nusoap_client(createCalcWsdlFile(), 'wsdl');
+	$client->loadWSDL();
+	$client->operations = ['add' => ['input' => ['parts' => ['a) {} } define(\'PROXY_INJECTED\', 1); class y { function z(' => 'xsd:int']]] + $operations['add']];
+	Assert::null($client->getProxy());
+	Assert::match('Parameter name %a% of operation add is not a valid PHP variable name', $client->getError());
+
+	Assert::false(defined('PROXY_INJECTED'));
+});
+
+// Test getProxy keeps line breaks in part types out of the generated code
+Toolkit::test(static function (): void {
+	$client = new nusoap_client(createCalcWsdlFile(), 'wsdl');
+	$client->loadWSDL();
+	$client->operations['add']['input']['parts']['a'] = "xsd:int\ndefine('PROXY_INJECTED', 1); ?>";
+
+	$code = $client->getProxyClassCode();
+	Assert::contains("// xsd:int define('PROXY_INJECTED', 1);   \$a,", $code);
+
+	$proxy = $client->getProxy();
+	Assert::type(nusoap_client::class, $proxy);
+	Assert::false(defined('PROXY_INJECTED'));
+});
+
 // Test getProxy is only available for WSDL clients
 Toolkit::test(static function (): void {
 	$client = new nusoap_client('http://example.com/service');
