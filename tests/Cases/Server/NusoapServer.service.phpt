@@ -357,3 +357,11 @@ Toolkit::test(static function (): void {
 	Assert::false($server->fault);
 	Assert::same(requestEnvelope('serviceEcho'), $server->requestSOAP);
 });
+
+// Test server reads the content encoding case-insensitively
+Toolkit::test(static function (): void {
+	[$server] = serve(createServer(), gzencode(requestEnvelope('serviceEcho')), ['HTTP_CONTENT_ENCODING' => 'GZIP']);
+
+	Assert::false($server->fault);
+	Assert::same(requestEnvelope('serviceEcho'), $server->requestSOAP);
+});

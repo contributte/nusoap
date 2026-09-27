@@ -4016,6 +4016,8 @@ class nusoap_server extends nusoap_base
         // uncompress if necessary
         if (isset($this->headers['content-encoding']) && $this->headers['content-encoding'] != '') {
             $this->debug('got content encoding: ' . $this->headers['content-encoding']);
+            // content codings are case-insensitive
+            $this->headers['content-encoding'] = strtolower($this->headers['content-encoding']);
             if ($this->headers['content-encoding'] == 'deflate' || $this->headers['content-encoding'] == 'gzip') {
                 // if decoding works, use it. else assume data wasn't gzencoded
                 if (function_exists('gzuncompress')) {
