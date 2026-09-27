@@ -2707,12 +2707,16 @@ class soap_transport_http extends nusoap_base
             $this->setHeader('Authorization', 'Basic ' . base64_encode(str_replace(':', '', $username) . ':' . $password));
         } elseif ($authtype == 'digest') {
             if (isset($digestRequest['nonce'])) {
-                $digestRequest['nc'] = isset($digestRequest['nc']) ? $digestRequest['nc']++ : 1;
+                // the nonce count increases with each request reusing the same nonce
+                $digestRequest['nc'] = isset($digestRequest['nc']) ? $digestRequest['nc'] + 1 : 1;
+                $realm = isset($digestRequest['realm']) ? $digestRequest['realm'] : '';
+                // the server may offer a list of qop values, only auth is supported
+                $qop = isset($digestRequest['qop']) && in_array('auth', array_map('trim', explode(',', $digestRequest['qop'])), true) ? 'auth' : '';
 
                 // calculate the Digest hashes (calculate code based on digest implementation found at: http://www.rassoc.com/gregr/weblog/stories/2002/07/09/webServicesSecurityHttpDigestAuthenticationWithoutActiveDirectory.html)
 
                 // A1 = unq(username-value) ":" unq(realm-value) ":" passwd
-                $A1 = $username . ':' . (isset($digestRequest['realm']) ? $digestRequest['realm'] : '') . ':' . $password;
+                $A1 = $username . ':' . $realm . ':' . $password;
 
                 // H(A1) = MD5(A1)
                 $HA1 = md5($A1);
@@ -2736,8 +2740,9 @@ class soap_transport_http extends nusoap_base
 
                 $nonce = $digestRequest['nonce'];
                 $cnonce = $nonce;
-                if ($digestRequest['qop'] != '') {
-                    $unhashedDigest = $HA1 . ':' . $nonce . ':' . sprintf("%08d", $digestRequest['nc']) . ':' . $cnonce . ':' . $digestRequest['qop'] . ':' . $HA2;
+                $nc = sprintf("%08x", $digestRequest['nc']);
+                if ($qop !== '') {
+                    $unhashedDigest = $HA1 . ':' . $nonce . ':' . $nc . ':' . $cnonce . ':' . $qop . ':' . $HA2;
                 } else {
                     $unhashedDigest = $HA1 . ':' . $nonce . ':' . $HA2;
                 }
@@ -2749,7 +2754,12 @@ class soap_transport_http extends nusoap_base
                     $opaque = ', opaque="' . $digestRequest['opaque'] . '"';
                 }
 
-                $this->setHeader('Authorization', 'Digest username="' . $username . '", realm="' . $digestRequest['realm'] . '", nonce="' . $nonce . '", uri="' . $this->digest_uri . $opaque . '", cnonce="' . $cnonce . '", nc=' . sprintf("%08x", $digestRequest['nc']) . ', qop="' . $digestRequest['qop'] . '", response="' . $hashedDigest . '"');
+                $qopParams = '';
+                if ($qop !== '') {
+                    $qopParams = ', cnonce="' . $cnonce . '", nc=' . $nc . ', qop=' . $qop;
+                }
+
+                $this->setHeader('Authorization', 'Digest username="' . $username . '", realm="' . $realm . '", nonce="' . $nonce . '", uri="' . $this->digest_uri . '"' . $opaque . $qopParams . ', response="' . $hashedDigest . '"');
             }
         } elseif ($authtype == 'certificate') {
             $this->certRequest = $certRequest;
@@ -3310,11 +3320,11 @@ class soap_transport_http extends nusoap_base
                 // remove "Digest " from our elements
                 $digestString = str_replace('Digest ', '', $this->incoming_headers['www-authenticate']);
 
-                // parse elements into array
-                $digestElements = explode(',', $digestString);
-                foreach ($digestElements as $val) {
-                    $tempElement = explode('=', trim($val), 2);
-                    $digestRequest[$tempElement[0]] = str_replace("\"", '', $tempElement[1]);
+                // parse elements into array, quoted values may contain commas
+                $digestRequest = array();
+                preg_match_all('/([\w-]+)\s*=\s*(?:"([^"]*)"|([^,\s]*))/', $digestString, $digestElements, PREG_SET_ORDER);
+                foreach ($digestElements as $element) {
+                    $digestRequest[$element[1]] = isset($element[3]) ? $element[3] : $element[2];
                 }
 
                 // should have (at least) qop, realm, nonce
