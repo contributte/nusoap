@@ -349,3 +349,11 @@ Toolkit::test(static function (): void {
 	Assert::same('SOAP-ENV:Client', $server->fault->faultcode);
 	Assert::same('Errors occurred when trying to decode the data', $server->fault->faultstring);
 });
+
+// Test server decodes a raw deflate request, as sent by some clients
+Toolkit::test(static function (): void {
+	[$server] = serve(createServer(), gzdeflate(requestEnvelope('serviceEcho')), ['HTTP_CONTENT_ENCODING' => 'deflate']);
+
+	Assert::false($server->fault);
+	Assert::same(requestEnvelope('serviceEcho'), $server->requestSOAP);
+});
