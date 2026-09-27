@@ -3422,13 +3422,13 @@ class soap_transport_http extends nusoap_base
                             $this->setError('Error using gzinflate to inflate the payload');
                         }
                     } elseif ($encoding === 'gzip') {
-                        if ($degzdata = @gzinflate(substr($data, 10))) {    // do our best
+                        if ($degzdata = @gzdecode($data)) {
                             $data = $degzdata;
                             $this->debug('The payload has been un-gzipped to ' . strlen($data) . ' bytes');
                             if (strlen($data) < $datalen) {
                                 // test for the case that the payload has been compressed twice
                                 $this->debug('The un-gzipped payload is smaller than the gzipped one; try again');
-                                if ($degzdata = @gzinflate(substr($data, 10))) {
+                                if ($degzdata = @gzdecode($data)) {
                                     $data = $degzdata;
                                     $this->debug('The payload has been un-gzipped again to ' . strlen($data) . ' bytes');
                                 }

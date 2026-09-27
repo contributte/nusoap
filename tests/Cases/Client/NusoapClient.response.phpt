@@ -79,6 +79,15 @@ Toolkit::test(static function (): void {
 	Assert::same('Canned', $client->return);
 });
 
+// Test client un-gzips a response with an original file name in the gzip header
+Toolkit::test(static function (): void {
+	$body = "\x1f\x8b\x08\x08\0\0\0\0\0\x03response.xml\0" . gzdeflate(RESPONSE_ENVELOPE) . pack('V', crc32(RESPONSE_ENVELOPE)) . pack('V', strlen(RESPONSE_ENVELOPE));
+	$client = callWithResponse(cannedResponse("Content-Encoding: gzip\r\nContent-Length: " . strlen($body) . "\r\n", $body));
+
+	Assert::false($client->getError());
+	Assert::same('Canned', $client->return);
+});
+
 // Test client reads the content encoding case-insensitively
 Toolkit::test(static function (): void {
 	$body = gzencode(RESPONSE_ENVELOPE);
