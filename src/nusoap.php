@@ -4651,8 +4651,8 @@ class nusoap_server extends nusoap_base
     {
         if (isset($_SERVER['SERVER_NAME'])) {
             $SERVER_NAME = $_SERVER['SERVER_NAME'];
-            $SERVER_PORT = $_SERVER['SERVER_PORT'];
-            $SCRIPT_NAME = $_SERVER['SCRIPT_NAME'];
+            $SERVER_PORT = $_SERVER['SERVER_PORT'] ?? '';
+            $SCRIPT_NAME = $_SERVER['SCRIPT_NAME'] ?? '';
             $HTTPS = $_SERVER['HTTPS'] ?? 'off';
         } else {
             $this->setError("_SERVER is not available");
@@ -4666,7 +4666,7 @@ class nusoap_server extends nusoap_base
         if ($colon) {
             $SERVER_NAME = substr($SERVER_NAME, 0, $colon);
         }
-        if ($SERVER_PORT == 80) {
+        if ($SERVER_PORT === '' || $SERVER_PORT == 80) {
             $SERVER_PORT = '';
         } else {
             $SERVER_PORT = ':' . $SERVER_PORT;

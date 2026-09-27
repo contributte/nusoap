@@ -100,3 +100,38 @@ Toolkit::test(static function (): void {
 	Assert::contains('docMethod', $wsdlXml);
 	Assert::contains('RequestType', $wsdlXml);
 });
+
+// Test configureWSDL builds the endpoint from the request
+Toolkit::test(static function (): void {
+	$originalServer = $_SERVER;
+	$_SERVER['SERVER_NAME'] = 'soap.example.com:8080';
+	$_SERVER['SERVER_PORT'] = '8080';
+	$_SERVER['SCRIPT_NAME'] = '/service.php';
+	$_SERVER['HTTPS'] = 'on';
+
+	try {
+		$server = new nusoap_server();
+		$server->configureWSDL('TestService');
+	} finally {
+		$_SERVER = $originalServer;
+	}
+
+	Assert::same('https://soap.example.com:8080/service.php', $server->wsdl->endpoint);
+	Assert::same('http://soap.example.com/soap/TestService', $server->wsdl->namespaces['tns']);
+});
+
+// Test configureWSDL without SERVER_PORT and SCRIPT_NAME does not emit warnings
+Toolkit::test(static function (): void {
+	$originalServer = $_SERVER;
+	$_SERVER['SERVER_NAME'] = 'soap.example.com';
+	unset($_SERVER['SERVER_PORT'], $_SERVER['SCRIPT_NAME'], $_SERVER['HTTPS']);
+
+	try {
+		$server = new nusoap_server();
+		$server->configureWSDL('TestService');
+	} finally {
+		$_SERVER = $originalServer;
+	}
+
+	Assert::same('http://soap.example.com', $server->wsdl->endpoint);
+});
