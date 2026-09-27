@@ -8259,26 +8259,38 @@ class nusoap_client extends nusoap_base
             $evalStr = 'A proxy can only be created for a WSDL client';
             $this->setError($evalStr);
 
-          return "echo \"$evalStr\";";
+          return 'echo ' . var_export($evalStr, true) . ';';
         }
         if (is_null($this->wsdl)) {
             $this->loadWSDL();
             if ($this->getError()) {
-                return "echo \"" . $this->getError() . "\";";
+                return 'echo ' . var_export($this->getError(), true) . ';';
             }
         }
+        // names and values come from the WSDL, so only identifiers and exported literals get into the code
+        $identifier = '/^[A-Za-z_][A-Za-z0-9_]*$/';
         $evalStr = '';
         foreach ($this->operations as $operation => $opData) {
             if ($operation != '') {
+                $methodName = str_replace('.', '__', $operation);
+                if (!preg_match($identifier, $methodName)) {
+                    $this->setError("Operation name $operation is not a valid PHP method name");
+                    return 'echo ' . var_export($this->getError(), true) . ';';
+                }
                 $paramStr = '';
                 $paramArrayStr = '';
                 // create param string and param comment string
                 if (sizeof($opData['input']['parts']) > 0) {
                     $paramCommentStr = '';
                     foreach ($opData['input']['parts'] as $name => $type) {
+                        if (!preg_match($identifier, $name)) {
+                            $this->setError("Parameter name $name of operation $operation is not a valid PHP variable name");
+                            return 'echo ' . var_export($this->getError(), true) . ';';
+                        }
                         $paramStr .= "\$$name, ";
                         $paramArrayStr .= "'$name' => \$$name, ";
-                        $paramCommentStr .= "$type \$$name, ";
+                        // a line break or a closing PHP tag would end the comment
+                        $paramCommentStr .= str_replace(array("\r", "\n", '?>'), ' ', $type) . " \$$name, ";
                     }
                     $paramStr = substr($paramStr, 0, strlen($paramStr) - 2);
                     $paramArrayStr = substr($paramArrayStr, 0, strlen($paramArrayStr) - 2);
@@ -8288,9 +8300,9 @@ class nusoap_client extends nusoap_base
                 }
                 $opData['namespace'] = !isset($opData['namespace']) ? 'http://testuri.com' : $opData['namespace'];
                 $evalStr .= "// $paramCommentStr
-	function " . str_replace('.', '__', $operation) . "($paramStr) {
+	function " . $methodName . "($paramStr) {
 		\$params = array($paramArrayStr);
-		return \$this->call('$operation', \$params, '" . $opData['namespace'] . "', '" . (isset($opData['soapAction']) ? $opData['soapAction'] : '') . "');
+		return \$this->call(" . var_export((string) $operation, true) . ", \$params, " . var_export((string) $opData['namespace'], true) . ", " . var_export(isset($opData['soapAction']) ? (string) $opData['soapAction'] : '', true) . ");
 	}
 	";
                 unset($paramStr);
