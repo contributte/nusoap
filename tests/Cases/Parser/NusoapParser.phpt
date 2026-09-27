@@ -206,6 +206,15 @@ Toolkit::test(static function (): void {
 	Assert::same("xml was empty, didn't parse!", $parser->getError());
 });
 
+// Test parser accepts an empty SOAP Body
+Toolkit::test(static function (): void {
+	$parser = new nusoap_parser(envelope(''));
+
+	Assert::false($parser->getError());
+	Assert::null($parser->get_soapbody());
+	Assert::same('', $parser->root_struct_name);
+});
+
 // Test parser reports truncated XML
 Toolkit::test(static function (): void {
 	$xml = envelope('<ns1:r xmlns:ns1="urn:x"><v>1</v></ns1:r>');
