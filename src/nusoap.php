@@ -4433,10 +4433,12 @@ class nusoap_server extends nusoap_base
         $this->appendDebug($this->varDump($headers));
         if (!isset($headers['content-type'])) {
             $this->setError('Request not of type '.$this->contentType.' (no content-type header)');
+            $this->fault('SOAP-ENV:Client', $this->getError());
             return false;
         }
         if (!strstr($headers['content-type'], $this->contentType)) {
             $this->setError('Request not of type '.$this->contentType.': ' . $headers['content-type']);
+            $this->fault('SOAP-ENV:Client', $this->getError());
             return false;
         }
         if (strpos($headers['content-type'], '=')) {

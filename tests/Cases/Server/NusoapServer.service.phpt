@@ -296,3 +296,15 @@ Toolkit::test(static function (): void {
 	Assert::same('serviceEcho', $server->methodname);
 	Assert::contains('hello', $output);
 });
+
+// Test server reports a request that is not text/xml as a client fault
+Toolkit::test(static function (): void {
+	[$server] = serve(createServer(), requestEnvelope('serviceEcho'), ['CONTENT_TYPE' => 'text/plain']);
+
+	Assert::same('SOAP-ENV:Client', $server->fault->faultcode);
+	Assert::same('Request not of type text/xml: text/plain', $server->fault->faultstring);
+	Assert::false($server->methodreturn);
+
+	[$server] = serve(createServer(), requestEnvelope('serviceEcho'), ['CONTENT_TYPE' => '']);
+	Assert::same('Request not of type text/xml: ', $server->fault->faultstring);
+});
