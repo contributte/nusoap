@@ -294,7 +294,7 @@ class nusoap_server_mime extends nusoap_server {
 	 * data, filename, contenttype, cid
 	 * @access private
 	 */
-	var $responseAttachments;
+	var $responseAttachments = array();
 	/**
 	 * @var string
 	 * @access private
