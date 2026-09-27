@@ -6828,7 +6828,11 @@ class nusoap_parser extends nusoap_base
             	}
             }
             //Tell the script that is the end of the parsing (by setting is_final to TRUE)
-            xml_parse($this->parser, '', true);
+            if (xml_parse($this->parser, '', true) === 0 && $parseErrors === array()) {
+                // the document is not complete, e.g. a truncated response
+                $parseErrors['lineNumber'] = xml_get_current_line_number($this->parser);
+                $parseErrors['errorString'] = xml_error_string(xml_get_error_code($this->parser));
+            }
 
             // Check if there is any attachment
             $this->attachments = array();
