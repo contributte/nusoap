@@ -5,6 +5,7 @@ use Contributte\Tester\Toolkit;
 use Tester\Assert;
 
 require_once __DIR__ . '/../../bootstrap.php';
+require_once __DIR__ . '/../../Toolkit/ServiceCalculator.php';
 
 // nusoap_server reads the request from $_SERVER
 // phpcs:disable SlevomatCodingStandard.Variables.DisallowSuperGlobalVariable
@@ -71,6 +72,8 @@ function createServer(): nusoap_server
 	$server->register('serviceFault');
 	$server->register('ServiceMath.double');
 	$server->register('ServiceMath..triple');
+	$server->register('Tests.Toolkit.ServiceCalculator.double');
+	$server->register('Tests..Toolkit..ServiceCalculator..triple');
 
 	return $server;
 }
@@ -307,4 +310,23 @@ Toolkit::test(static function (): void {
 
 	[$server] = serve(createServer(), requestEnvelope('serviceEcho'), ['CONTENT_TYPE' => '']);
 	Assert::same('Request not of type text/xml: ', $server->fault->faultstring);
+});
+
+// Test server calls methods of a namespaced class
+Toolkit::test(static function (): void {
+	[$server] = serve(createServer(), requestEnvelope('Tests.Toolkit.ServiceCalculator.double', '<v>21</v>'));
+	Assert::false($server->fault);
+	Assert::same(42, $server->methodreturn);
+
+	[$server] = serve(createServer(), requestEnvelope('Tests..Toolkit..ServiceCalculator..triple', '<v>5</v>'));
+	Assert::false($server->fault);
+	Assert::same(15, $server->methodreturn);
+});
+
+// Test server reports a missing namespaced class as a client fault
+Toolkit::test(static function (): void {
+	[$server] = serve(createServer(), requestEnvelope('Missing..Namespace..method'));
+
+	Assert::same('SOAP-ENV:Client', $server->fault->faultcode);
+	Assert::match("method 'Missing..Namespace..method'%a%not defined in service%a%", $server->fault->faultstring);
 });
