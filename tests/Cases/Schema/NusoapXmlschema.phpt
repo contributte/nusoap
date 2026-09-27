@@ -157,6 +157,61 @@ Toolkit::test(static function (): void {
 	Assert::same(array_keys(parseSchema()->complexTypes), array_keys($reparsed->complexTypes));
 });
 
+// Test serializeSchema keeps complexContent extensions
+Toolkit::test(static function (): void {
+	$xml = parseSchema()->serializeSchema();
+
+	Assert::contains(
+		" <xsd:complexType name=\"Employee\">\n"
+		. "  <xsd:complexContent>\n"
+		. "   <xsd:extension base=\"tns:Person\">\n"
+		. "  <xsd:sequence>\n"
+		. "   <xsd:element name=\"salary\" type=\"xsd:double\" form=\"qualified\"/>\n"
+		. "  </xsd:sequence>\n"
+		. "   </xsd:extension>\n"
+		. "  </xsd:complexContent>\n"
+		. " </xsd:complexType>\n",
+		$xml
+	);
+
+	$reparsed = new nusoap_xmlschema('', '', ['xsd' => 'http://www.w3.org/2001/XMLSchema']);
+	$reparsed->parseString($xml, 'schema');
+	Assert::same('urn:t:Person', $reparsed->complexTypes['Employee']['extensionBase']);
+});
+
+// Test serializeSchema keeps simpleContent extensions
+Toolkit::test(static function (): void {
+	$schema = new nusoap_xmlschema('', '', ['xsd' => 'http://www.w3.org/2001/XMLSchema']);
+	$schema->parseString('<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="urn:t">'
+		. '<xsd:complexType name="Price"><xsd:simpleContent><xsd:extension base="xsd:decimal">'
+		. '<xsd:attribute name="currency" type="xsd:string"/>'
+		. '</xsd:extension></xsd:simpleContent></xsd:complexType>'
+		. '</xsd:schema>', 'schema');
+
+	$xml = $schema->serializeSchema();
+	Assert::contains('<xsd:simpleContent>', $xml);
+	Assert::contains('<xsd:extension base="xsd:decimal">', $xml);
+	Assert::contains('<xsd:attribute name="currency" type="xsd:string"', $xml);
+});
+
+// Test attributes of a complexType are not declared as global attributes
+Toolkit::test(static function (): void {
+	$schema = new nusoap_xmlschema('', '', ['xsd' => 'http://www.w3.org/2001/XMLSchema']);
+	$schema->parseString('<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:tns="urn:t" targetNamespace="urn:t">'
+		. '<xsd:attribute name="lang" type="xsd:string"/>'
+		. '<xsd:complexType name="Text"><xsd:sequence><xsd:element name="v" type="xsd:string"/></xsd:sequence>'
+		. '<xsd:attribute name="id" type="xsd:string"/><xsd:attribute ref="tns:lang"/></xsd:complexType>'
+		. '</xsd:schema>', 'schema');
+
+	Assert::same(['lang'], array_keys($schema->attributes));
+	Assert::same(['id', 'urn:t:lang'], array_keys($schema->complexTypes['Text']['attrs']));
+
+	$xml = $schema->serializeSchema();
+	Assert::same(1, substr_count($xml, 'name="id"'));
+	Assert::contains('<xsd:attribute ref="tns:lang"', $xml);
+	Assert::contains(" <xsd:attribute name=\"lang\" type=\"xsd:string\"\n/>", $xml);
+});
+
 // Test addComplexType, addSimpleType and addElement register types
 Toolkit::test(static function (): void {
 	$schema = new nusoap_xmlschema();

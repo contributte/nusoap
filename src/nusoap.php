@@ -1404,8 +1404,11 @@ class nusoap_xmlschema extends nusoap_base
                         }
                     }
                 }
+                // only top-level attributes are global, others belong to the complexType
                 if (isset($attrs['name'])) {
-                    $this->attributes[$attrs['name']] = $attrs;
+                    if (!$this->currentComplexType) {
+                        $this->attributes[$attrs['name']] = $attrs;
+                    }
                     $aname = $attrs['name'];
                 } elseif (isset($attrs['ref']) && $attrs['ref'] == 'http://schemas.xmlsoap.org/soap/encoding/:arrayType') {
                     if (isset($attrs['http://schemas.xmlsoap.org/wsdl/:arrayType'])) {
@@ -1415,7 +1418,9 @@ class nusoap_xmlschema extends nusoap_base
                     }
                 } elseif (isset($attrs['ref'])) {
                     $aname = $attrs['ref'];
-                    $this->attributes[$attrs['ref']] = $attrs;
+                    if (!$this->currentComplexType) {
+                        $this->attributes[$attrs['ref']] = $attrs;
+                    }
                 } else {
                     $aname = '';
                 }
@@ -1743,6 +1748,11 @@ class nusoap_xmlschema extends nusoap_base
                 if ((isset($attrs['elements']) && count($attrs['elements']) > 0) || (isset($attrs['attrs']) && count($attrs['attrs']) > 0)) {
                     $contentStr = "  <$schemaPrefix:complexContent>\n" . $contentStr . "  </$schemaPrefix:complexContent>\n";
                 }
+            }
+            // if extension
+            if (isset($attrs['extensionBase']) && $attrs['extensionBase'] !== '') {
+                $content = isset($attrs['simpleContent']) && $attrs['simpleContent'] === 'true' ? 'simpleContent' : 'complexContent';
+                $contentStr = "  <$schemaPrefix:$content>\n   <$schemaPrefix:extension base=\"" . $this->contractQname($attrs['extensionBase']) . "\">\n" . $contentStr . "   </$schemaPrefix:extension>\n  </$schemaPrefix:$content>\n";
             }
             // finalize complex type
             if ($contentStr != '') {
