@@ -69,3 +69,35 @@ Toolkit::test(static function (): void {
 	Assert::contains('op3', $wsdlXml);
 	Assert::contains('MultiOpService', $wsdlXml);
 });
+
+// Test register builds default SOAPAction from the request
+Toolkit::test(static function (): void {
+	$originalServer = $_SERVER;
+	$_SERVER['SERVER_NAME'] = 'soap.example.com';
+	$_SERVER['SCRIPT_NAME'] = '/service.php';
+	$_SERVER['HTTPS'] = 'on';
+
+	try {
+		$server = new nusoap_server();
+		$server->register('testMethod');
+	} finally {
+		$_SERVER = $originalServer;
+	}
+
+	Assert::same('https://soap.example.com/service.php/testMethod', $server->operations['testMethod']['soapaction']);
+});
+
+// Test register without SOAPAction outside of a web request does not emit warnings
+Toolkit::test(static function (): void {
+	$originalServer = $_SERVER;
+	unset($_SERVER['SERVER_NAME'], $_SERVER['SCRIPT_NAME'], $_SERVER['HTTPS']);
+
+	try {
+		$server = new nusoap_server();
+		$server->register('testMethod');
+	} finally {
+		$_SERVER = $originalServer;
+	}
+
+	Assert::same('http:///testMethod', $server->operations['testMethod']['soapaction']);
+});

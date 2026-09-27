@@ -4532,8 +4532,8 @@ class nusoap_server extends nusoap_base
         }
         if (!$soapaction) {
             if (isset($_SERVER)) {
-                $SERVER_NAME = $_SERVER['SERVER_NAME'];
-                $SCRIPT_NAME = $_SERVER['SCRIPT_NAME'];
+                $SERVER_NAME = $_SERVER['SERVER_NAME'] ?? '';
+                $SCRIPT_NAME = $_SERVER['SCRIPT_NAME'] ?? '';
                 $HTTPS = $_SERVER['HTTPS'] ?? 'off';
             } else {
                 $this->setError("_SERVER is not available");
