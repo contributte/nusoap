@@ -70,6 +70,15 @@ Toolkit::test(static function (): void {
 	}
 });
 
+// Test client inflates a zlib wrapped deflate response (RFC 7230)
+Toolkit::test(static function (): void {
+	$body = gzcompress(RESPONSE_ENVELOPE);
+	$client = callWithResponse(cannedResponse("Content-Encoding: deflate\r\nContent-Length: " . strlen($body) . "\r\n", $body));
+
+	Assert::false($client->getError());
+	Assert::same('Canned', $client->return);
+});
+
 // Test client reads the content encoding case-insensitively
 Toolkit::test(static function (): void {
 	$body = gzencode(RESPONSE_ENVELOPE);

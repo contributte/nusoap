@@ -3401,7 +3401,12 @@ class soap_transport_http extends nusoap_base
                     $this->debug('The gzinflate function exists');
                     $datalen = strlen($data);
                     if ($encoding === 'deflate') {
-                        if ($degzdata = @gzinflate($data)) {
+                        // deflate should be zlib wrapped, but is often sent raw
+                        $degzdata = @gzuncompress($data);
+                        if ($degzdata === false) {
+                            $degzdata = @gzinflate($data);
+                        }
+                        if ($degzdata) {
                             $data = $degzdata;
                             $this->debug('The payload has been inflated to ' . strlen($data) . ' bytes');
                             if (strlen($data) < $datalen) {
