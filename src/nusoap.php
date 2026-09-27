@@ -5736,7 +5736,8 @@ class wsdl extends nusoap_base
                 $binding_xml .= "\n<binding name=\"" . $bindingName . '" type="tns:' . $attrs['portType'] . '">';
                 $binding_xml .= "\n" . '  <soap:binding style="' . $attrs['style'] . '" transport="' . $attrs['transport'] . '"/>';
                 $portType_xml .= "\n<portType name=\"" . $attrs['portType'] . '">';
-                foreach ($attrs['operations'] as $opName => $opParts) {
+                // a service may have no operations registered yet
+                foreach (isset($attrs['operations']) ? $attrs['operations'] : array() as $opName => $opParts) {
                     $binding_xml .= "\n" . '  <operation name="' . $opName . '">';
                     $binding_xml .= "\n" . '    <soap:operation soapAction="' . $opParts['soapAction'] . '" style="' . $opParts['style'] . '"/>';
                     if (isset($opParts['input']['encodingStyle']) && $opParts['input']['encodingStyle'] != '') {
