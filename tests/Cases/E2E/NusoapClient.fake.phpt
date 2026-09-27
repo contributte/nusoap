@@ -74,3 +74,28 @@ Toolkit::test(static function (): void {
 	Assert::contains('SOAPAction: "urn:TestService#sayHello"', $recorded->request);
 	Assert::contains('<name xsi:type="xsd:string">World</name>', $recorded->request);
 });
+
+// Test client receiving a fault does not create dynamic properties (deprecated since PHP 8.2)
+Toolkit::test(static function (): void {
+	$handler = static function (): string {
+		$body = '<?xml version="1.0" encoding="UTF-8"?>'
+			. '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">'
+			. '<SOAP-ENV:Body><SOAP-ENV:Fault>'
+			. '<faultcode>SOAP-ENV:Server</faultcode><faultstring>Broken</faultstring>'
+			. '<faultactor>urn:actor</faultactor><detail>Details</detail>'
+			. '</SOAP-ENV:Fault></SOAP-ENV:Body></SOAP-ENV:Envelope>';
+
+		return "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/xml; charset=UTF-8\r\nContent-Length: " . strlen($body) . "\r\n\r\n" . $body;
+	};
+
+	$client = new nusoap_client('http://soap.invalid/service');
+	$client->persistentConnection = FakeHttpStream::createTransport('http://soap.invalid/service', $handler);
+
+	$client->call('sayHello', ['name' => 'World'], 'urn:TestService', 'urn:TestService#sayHello');
+
+	Assert::true($client->fault);
+	Assert::same('SOAP-ENV:Server', $client->faultcode);
+	Assert::same('Broken', $client->faultstring);
+	Assert::same('urn:actor', $client->faultactor);
+	Assert::same('Details', $client->detail);
+});

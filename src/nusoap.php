@@ -7469,6 +7469,16 @@ class nusoap_client extends nusoap_base
      * @access   public
      */
     var $faultdetail;
+    /**
+     * @var      string
+     * @access   public
+     */
+    var $faultactor;
+    /**
+     * @var      mixed
+     * @access   public
+     */
+    var $detail;
 
     /** @var wsdl|null */
     var $wsdl;
