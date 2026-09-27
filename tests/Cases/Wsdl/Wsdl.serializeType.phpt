@@ -26,6 +26,9 @@ function createWsdl(): wsdl
 		['ref' => 'SOAP-ENC:arrayType', 'wsdl:arrayType' => 'xsd:string[]'],
 	], 'xsd:string');
 	$server->wsdl->addSimpleType('Color', 'xsd:string', 'simpleType', 'scalar', ['red', 'blue']);
+	$server->wsdl->addComplexType('Colors', 'complexType', 'array', '', 'SOAP-ENC:Array', [], [
+		['ref' => 'SOAP-ENC:arrayType', 'wsdl:arrayType' => 'tns:Color[]'],
+	], 'tns:Color');
 
 	return $server->wsdl;
 }
@@ -102,6 +105,14 @@ Toolkit::test(static function (): void {
 	Assert::same(
 		'<s xsi:type="SOAP-ENC:Array" SOAP-ENC:arrayType="xsd:string[0]"></s>',
 		$wsdl->serializeType('s', 'tns:Strings', [])
+	);
+});
+
+// Test serializeType encodes an array of a simpleType
+Toolkit::test(static function (): void {
+	Assert::same(
+		'<c xsi:type="SOAP-ENC:Array" SOAP-ENC:arrayType="tns:Color[2]"><item xsi:type="tns:Color">red</item><item xsi:type="tns:Color">blue</item></c>',
+		createWsdl()->serializeType('c', 'tns:Colors', ['red', 'blue'])
 	);
 });
 

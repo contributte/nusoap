@@ -532,6 +532,18 @@ class nusoap_base
             $this->debug("serialize_val returning $xml");
             return $xml;
         }
+        // serialize a scalar of a type from another namespace
+        if (is_string($type) && $type !== '' && isset($type_prefix) && $type_prefix !== 'xsd' && $use !== 'literal' && is_scalar($val)) {
+            $this->debug("serialize_val: serialize scalar of type $type_prefix:$type");
+            if (is_bool($val)) {
+                $val = $val ? 1 : 0;
+            } elseif (is_string($val)) {
+                $val = $this->expandEntities($val);
+            }
+            $xml = "<$name$xmlns xsi:type=\"$type_prefix:$type\"$atts>$val</$name>";
+            $this->debug("serialize_val returning $xml");
+            return $xml;
+        }
         // detect type and serialize
         $xml = '';
         switch (true) {

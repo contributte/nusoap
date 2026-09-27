@@ -42,6 +42,16 @@ Toolkit::test(static function (): void {
 	Assert::match('<nu%d%:item xmlns:nu%d%="urn:element" xsi:type="xsd:string" lang="en">x</nu%d%:item>', $val->serialize());
 });
 
+// Test soapval serializes a scalar with a custom type in its own namespace
+Toolkit::test(static function (): void {
+	Assert::match('<code xmlns:ns%d%="urn:type" xsi:type="ns%d%:Currency">EUR &amp; co</code>', (new soapval('code', 'Currency', 'EUR & co', false, 'urn:type'))->serialize());
+	Assert::match('<n xmlns:ns%d%="urn:type" xsi:type="ns%d%:Count">5</n>', (new soapval('n', 'Count', 5, false, 'urn:type'))->serialize());
+	Assert::match('<f xmlns:ns%d%="urn:type" xsi:type="ns%d%:Flag">1</f>', (new soapval('f', 'Flag', true, false, 'urn:type'))->serialize());
+
+	// Literal use has no xsi:type
+	Assert::match('<code xmlns:ns%d%="urn:type">EUR</code>', (new soapval('code', 'Currency', 'EUR', false, 'urn:type'))->serialize('literal'));
+});
+
 // Test soapval serializes a struct with a custom type in its own namespace
 Toolkit::test(static function (): void {
 	$val = new soapval('person', 'Person', ['name' => 'Joe'], false, 'urn:type');
