@@ -273,6 +273,21 @@ Toolkit::test(static function (): void {
 	Assert::same('abcdefghijklmnopqrstuvwxyz', $http->decodeChunked("1a\nabcdefghijklmnopqrstuvwxyz\n0\n\n", "\n"));
 });
 
+// Test decodeChunked ignores chunk extensions (RFC 7230)
+Toolkit::test(static function (): void {
+	$http = new soap_transport_http('http://example.com/');
+
+	Assert::same('Hello, World', $http->decodeChunked("5;name=value\r\nHello\r\n7 ; ext\r\n, World\r\n0\r\n\r\n", "\r\n"));
+});
+
+// Test decodeChunked keeps the data of a truncated body
+Toolkit::test(static function (): void {
+	$http = new soap_transport_http('http://example.com/');
+
+	Assert::same('Hel', $http->decodeChunked("5\r\nHel", "\r\n"));
+	Assert::same('Hello', $http->decodeChunked("5\r\nHello\r\n", "\r\n"));
+});
+
 // Test decodeChunked returns an empty string when there is no line break
 Toolkit::test(static function (): void {
 	$http = new soap_transport_http('http://example.com/');
