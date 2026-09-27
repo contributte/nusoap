@@ -13,6 +13,8 @@ use soap_transport_http;
  *
  * Everything nusoap writes to the stream is collected as a raw HTTP request. On the first read
  * the request is passed to the handler, whose raw HTTP response is then read back by nusoap.
+ * A response with a known length keeps the connection alive, writing after it was read starts
+ * a new request. Without a length the response is read until the connection closes.
  * The cURL transport does not use PHP streams and cannot be faked this way, see HttpServer.
  */
 final class FakeHttpStream
@@ -101,6 +103,12 @@ final class FakeHttpStream
 
 	public function stream_write(string $data): int
 	{
+		if ($this->isResponseRead()) {
+			$this->request = '';
+			$this->response = null;
+			$this->position = 0;
+		}
+
 		$this->request .= $data;
 
 		return strlen($data);
@@ -117,12 +125,17 @@ final class FakeHttpStream
 
 	public function stream_eof(): bool
 	{
-		return $this->response !== null && $this->position >= strlen($this->response);
+		return $this->isResponseRead() && preg_match('~^(Content-Length|Transfer-Encoding):~mi', explode("\r\n\r\n", (string) $this->response, 2)[0]) !== 1;
 	}
 
 	public function stream_set_option(int $option, int $arg1, ?int $arg2): bool
 	{
 		return false;
+	}
+
+	private function isResponseRead(): bool
+	{
+		return $this->response !== null && $this->position >= strlen($this->response);
 	}
 
 }

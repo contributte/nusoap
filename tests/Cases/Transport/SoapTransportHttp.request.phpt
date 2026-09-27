@@ -84,7 +84,7 @@ Toolkit::test(static function (): void {
 	$response = md5($ha1 . ':nonce123:00000001:nonce123:auth:' . $ha2);
 
 	Assert::same(
-		'Digest username="user", realm="realm", nonce="nonce123", uri="/service.php", cnonce="nonce123", nc=00000001, qop="auth", response="' . $response . '"',
+		'Digest username="user", realm="realm", nonce="nonce123", uri="/service.php", cnonce="nonce123", nc=00000001, qop=auth, response="' . $response . '"',
 		$http->outgoing_headers['Authorization']
 	);
 	Assert::same('digest', $http->authtype);
