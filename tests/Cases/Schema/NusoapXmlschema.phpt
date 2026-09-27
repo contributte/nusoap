@@ -1,5 +1,6 @@
 <?php declare(strict_types = 1);
 
+use Contributte\Tester\Environment;
 use Contributte\Tester\Toolkit;
 use Tester\Assert;
 
@@ -207,6 +208,26 @@ Toolkit::test(static function (): void {
 	$schema = new nusoap_xmlschema();
 	$schema->parseString('', 'schema');
 	Assert::same('no xml passed to parseString()!!', $schema->getError());
+});
+
+// Test schema reports a file that cannot be read
+Toolkit::test(static function (): void {
+	$schema = new nusoap_xmlschema(__DIR__ . '/missing.xsd');
+
+	Assert::same('Error reading XML from ' . __DIR__ . '/missing.xsd', $schema->getError());
+	Assert::false($schema->parseFile(__DIR__ . '/missing.xsd', 'schema'));
+});
+
+// Test schema parses a schema file
+Toolkit::test(static function (): void {
+	$file = Environment::getTestDir() . '/schema.xsd';
+	file_put_contents($file, SCHEMA);
+
+	$schema = new nusoap_xmlschema($file, '', ['xsd' => 'http://www.w3.org/2001/XMLSchema']);
+
+	Assert::false($schema->getError());
+	Assert::same('urn:t', $schema->schemaTargetNamespace);
+	Assert::true(isset($schema->complexTypes['Person']));
 });
 
 // Test XMLSchema backward compatibility class
