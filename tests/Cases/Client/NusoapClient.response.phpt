@@ -42,6 +42,21 @@ Toolkit::test(static function (): void {
 	Assert::same('Canned', $client->return);
 });
 
+// Test client reads a chunked response with chunk extensions
+Toolkit::test(static function (): void {
+	$body = '';
+	foreach (str_split(RESPONSE_ENVELOPE, 50) as $i => $chunk) {
+		$body .= dechex(strlen($chunk)) . ';chunk=' . $i . "\r\n" . $chunk . "\r\n";
+	}
+
+	$body .= "0;last\r\n\r\n";
+
+	$client = callWithResponse(cannedResponse("Transfer-Encoding: chunked\r\n", $body));
+
+	Assert::false($client->getError());
+	Assert::same('Canned', $client->return);
+});
+
 // Test client inflates gzip and deflate encoded responses
 Toolkit::test(static function (): void {
 	foreach (['gzip' => gzencode(RESPONSE_ENVELOPE), 'deflate' => gzdeflate(RESPONSE_ENVELOPE)] as $encoding => $body) {

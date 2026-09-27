@@ -2914,15 +2914,15 @@ class soap_transport_http extends nusoap_base
             return $new;
         }
         $temp = substr($buffer, 0, $chunkend);
-        $chunk_size = hexdec(trim($temp));
+        $chunk_size = $this->parseChunkSize($temp);
         $chunkstart = $chunkend + strlen($lb);
         // while (chunk-size > 0) {
         while ($chunk_size > 0) {
             $this->debug("chunkstart: $chunkstart chunk_size: $chunk_size");
-            $chunkend = strpos($buffer, $lb, $chunkstart + $chunk_size);
+            $chunkend = $chunkstart + $chunk_size <= strlen($buffer) ? strpos($buffer, $lb, $chunkstart + $chunk_size) : false;
 
             // Just in case we got a broken connection
-            if (!$chunkend) {
+            if ($chunkend === false) {
                 $chunk = substr($buffer, $chunkstart);
                 // append chunk-data to entity-body
                 $new .= $chunk;
@@ -2937,15 +2937,29 @@ class soap_transport_http extends nusoap_base
             // read chunk-size and CRLF
             $chunkstart = $chunkend + strlen($lb);
 
-            $chunkend = strpos($buffer, $lb, $chunkstart) + strlen($lb);
-            if (!$chunkend) {
+            $chunkend = strpos($buffer, $lb, $chunkstart);
+            if ($chunkend === false) {
                 break; //Just in case we got a broken connection
             }
+            $chunkend += strlen($lb);
             $temp = substr($buffer, $chunkstart, $chunkend - $chunkstart);
-            $chunk_size = hexdec(trim($temp));
+            $chunk_size = $this->parseChunkSize($temp);
             $chunkstart = $chunkend;
         }
         return $new;
+    }
+
+    /**
+     * parses the size of a chunk from its chunk-size line, ignoring any chunk-extension
+     *
+     * @param    string $line chunk-size line
+     * @return   integer chunk size, 0 if the line is not valid
+     * @access   private
+     */
+    function parseChunkSize($line)
+    {
+        $size = trim(explode(';', $line, 2)[0]);
+        return preg_match('/^[0-9a-f]+$/i', $size) ? hexdec($size) : 0;
     }
 
     /**
@@ -3167,7 +3181,7 @@ class soap_transport_http extends nusoap_base
                         $this->setError('socket read of chunk length timed out');
                         return false;
                     }
-                    $content_length = hexdec(trim($tmp));
+                    $content_length = $this->parseChunkSize($tmp);
                     $this->debug("chunk length $content_length");
                 }
                 $strlen = 0;
