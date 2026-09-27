@@ -4021,6 +4021,9 @@ class nusoap_server extends nusoap_base
                 if (function_exists('gzuncompress')) {
                     if ($this->headers['content-encoding'] == 'deflate' && $degzdata = @gzuncompress($data)) {
                         $data = $degzdata;
+                    } elseif ($this->headers['content-encoding'] === 'deflate' && $degzdata = @gzinflate($data)) {
+                        // raw deflate data without the zlib wrapper
+                        $data = $degzdata;
                     } elseif ($this->headers['content-encoding'] == 'gzip' && $degzdata = @gzdecode($data)) {
                         $data = $degzdata;
                     } else {
