@@ -7086,8 +7086,9 @@ class nusoap_parser extends nusoap_base
         }
         // get namespace - must be done after namespace atts are processed
         if (isset($prefix)) {
-            $this->message[$pos]['namespace'] = $this->namespaces[$prefix];
-            $this->default_namespace = $this->namespaces[$prefix];
+            // the prefix may be undeclared in a document that is not namespace-well-formed
+            $this->message[$pos]['namespace'] = isset($this->namespaces[$prefix]) ? $this->namespaces[$prefix] : '';
+            $this->default_namespace = $this->message[$pos]['namespace'];
         } else {
             $this->message[$pos]['namespace'] = $this->default_namespace;
         }

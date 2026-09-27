@@ -206,6 +206,15 @@ Toolkit::test(static function (): void {
 	Assert::same("xml was empty, didn't parse!", $parser->getError());
 });
 
+// Test parser accepts an element with an undeclared namespace prefix
+Toolkit::test(static function (): void {
+	$parser = new nusoap_parser(envelope('<ns1:r><v>1</v></ns1:r>'));
+
+	Assert::false($parser->getError());
+	Assert::same(['v' => '1'], $parser->get_soapbody());
+	Assert::same('', $parser->root_struct_namespace);
+});
+
 // Test parser accepts an empty SOAP Body
 Toolkit::test(static function (): void {
 	$parser = new nusoap_parser(envelope(''));
