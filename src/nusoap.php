@@ -2223,6 +2223,9 @@ class soap_transport_http extends nusoap_base
 {
 
     var $query = '';
+    var $fragment = '';
+    var $user = '';
+    var $pass = '';
     var $tryagain = false;
     var $url = '';
     var $uri = '';

@@ -24,6 +24,24 @@ Toolkit::test(static function (): void {
 	Assert::same('example.com:8080', $custom->outgoing_headers['Host']);
 });
 
+// Test setURL uses credentials embedded in the URL for basic auth
+Toolkit::test(static function (): void {
+	$http = new soap_transport_http('http://john%40doe:s%3Acret@example.com/service.php');
+
+	Assert::same('john@doe', $http->username);
+	Assert::same('s:cret', $http->password);
+	Assert::same('basic', $http->authtype);
+	Assert::same('Basic ' . base64_encode('john@doe:s:cret'), $http->outgoing_headers['Authorization']);
+});
+
+// Test setURL ignores the fragment of the URL
+Toolkit::test(static function (): void {
+	$http = new soap_transport_http('http://example.com/service.php?wsdl#section');
+
+	Assert::same('/service.php?wsdl', $http->uri);
+	Assert::same('section', $http->fragment);
+});
+
 // Test User-Agent header is set from library title and version
 Toolkit::test(static function (): void {
 	$http = new soap_transport_http('http://example.com/');
