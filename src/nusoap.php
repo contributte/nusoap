@@ -2580,6 +2580,13 @@ class soap_transport_http extends nusoap_base
             $this->debug('connect using cURL');
             // init CURL
             $this->ch = curl_init();
+            if ($this->ch === false) {
+                $msg = 'Couldn\'t initialize cURL';
+                $this->debug($msg);
+                $this->setError($msg);
+                return false;
+            }
+
             // set url
             $hostURL = ($this->port != '') ? "$this->scheme://$this->host:$this->port" : "$this->scheme://$this->host";
             // add path
