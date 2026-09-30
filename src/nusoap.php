@@ -7248,11 +7248,13 @@ class nusoap_parser extends nusoap_base
             }
         }
         $this->message[$pos]['cdata'] .= $data;
+        // the XML of the header and document is rebuilt, so the data has to be escaped again
+        $xml = str_replace(array('&', '<', '>'), array('&amp;', '&lt;', '&gt;'), $data);
         // for doclit
         if ($this->status == 'header') {
-            $this->responseHeaders .= $data;
+            $this->responseHeaders .= $xml;
         } else {
-            $this->document .= $data;
+            $this->document .= $xml;
         }
     }
 
