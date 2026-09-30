@@ -5343,7 +5343,7 @@ class wsdl extends nusoap_base
 
     function getBindingData($binding)
     {
-        if (is_array($this->bindings[$binding])) {
+        if (isset($this->bindings[$binding]) && is_array($this->bindings[$binding])) {
             return $this->bindings[$binding];
         }
         return false;

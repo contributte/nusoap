@@ -66,3 +66,11 @@ Toolkit::test(static function (): void {
 Toolkit::test(static function (): void {
 	Assert::same([], createWsdlServer()->wsdl->getOperationDataForSoapAction('urn:TestService#missing'));
 });
+
+// Test binding lookup
+Toolkit::test(static function (): void {
+	$wsdl = createWsdlServer()->wsdl;
+
+	Assert::same('TestServicePortType', $wsdl->getBindingData('TestServiceBinding')['portType']);
+	Assert::false($wsdl->getBindingData('MissingBinding'));
+});
