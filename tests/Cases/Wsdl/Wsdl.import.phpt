@@ -24,3 +24,12 @@ Toolkit::test(static function (): void {
 	Assert::same('http://example.com:8080/schemas/types.xsd', $wsdl->resolveImportUrl('/schemas/types.xsd'));
 	Assert::same('https://other.example.com/types.xsd', $wsdl->resolveImportUrl('https://other.example.com/types.xsd'));
 });
+
+// Test import locations keep their query
+Toolkit::test(static function (): void {
+	$wsdl = new wsdl();
+	$wsdl->wsdl = 'http://example.com/Service.svc?wsdl';
+
+	Assert::same('http://example.com/Service.svc?xsd=xsd0', $wsdl->resolveImportUrl('Service.svc?xsd=xsd0'));
+	Assert::same('http://example.com/xsd/types.php?v=2', $wsdl->resolveImportUrl('/xsd/types.php?v=2'));
+});

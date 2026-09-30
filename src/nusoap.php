@@ -4932,10 +4932,11 @@ class wsdl extends nusoap_base
             return substr($url, 0, 1) === '/' ? $url : dirname($this->wsdl) . '/' . $url;
         }
         $base = $wsdlparts['scheme'] . '://' . $wsdlparts['host'] . (isset($wsdlparts['port']) ? ':' . $wsdlparts['port'] : '');
+        $query = isset($urlparts['query']) ? '?' . $urlparts['query'] : '';
         if (substr($url, 0, 1) === '/') {
-            return $base . $urlparts['path'];
+            return $base . $urlparts['path'] . $query;
         }
-        return $base . substr($wsdlparts['path'], 0, strrpos($wsdlparts['path'], '/') + 1) . $urlparts['path'];
+        return $base . substr($wsdlparts['path'], 0, strrpos($wsdlparts['path'], '/') + 1) . $urlparts['path'] . $query;
     }
 
     /**
