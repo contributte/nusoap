@@ -112,3 +112,19 @@ Toolkit::test(static function (): void {
 	Assert::same('exact=1; dot=2; ', (new soap_transport_http('http://www.EXAMPLE.com/'))->getCookiesForRequest($cookies));
 	Assert::same('', (new soap_transport_http('http://notexample.com/'))->getCookiesForRequest($cookies));
 });
+
+// Test cookie path matches the request path at a segment boundary (RFC 6265)
+Toolkit::test(static function (): void {
+	$cookies = [
+		['name' => 'root', 'value' => '1', 'path' => '/'],
+		['name' => 'app', 'value' => '2', 'path' => '/app'],
+		['name' => 'slash', 'value' => '3', 'path' => '/app/'],
+		['name' => 'file', 'value' => '4', 'path' => '/app/service.php'],
+	];
+
+	Assert::same('root=1; app=2; slash=3; file=4; ', (new soap_transport_http('http://example.com/app/service.php?wsdl'))->getCookiesForRequest($cookies));
+	Assert::same('root=1; app=2; ', (new soap_transport_http('http://example.com/app'))->getCookiesForRequest($cookies));
+	Assert::same('root=1; ', (new soap_transport_http('http://example.com/application'))->getCookiesForRequest($cookies));
+	Assert::same('root=1; ', (new soap_transport_http('http://example.com/APP/service.php'))->getCookiesForRequest($cookies));
+	Assert::same('root=1; ', (new soap_transport_http('http://example.com'))->getCookiesForRequest($cookies));
+});
