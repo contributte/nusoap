@@ -197,6 +197,18 @@ Toolkit::test(static function (): void {
 	Assert::same(['v' => 'Žluťoučký kůň'], $parser->get_soapbody());
 });
 
+// Test parser keeps entities escaped in the header and document XML
+Toolkit::test(static function (): void {
+	$parser = parse(
+		'<ns1:r xmlns:ns1="urn:x"><v>a &amp; &lt;b&gt;</v></ns1:r>',
+		'<ns2:Auth xmlns:ns2="urn:h"><token>x&amp;y</token></ns2:Auth>'
+	);
+
+	Assert::same(['v' => 'a & <b>'], $parser->get_soapbody());
+	Assert::same('<ns2:Auth xmlns:ns2="urn:h"><token>x&amp;y</token></ns2:Auth>', $parser->getHeaders());
+	Assert::same('<ns1:r xmlns:ns1="urn:x"><v>a &amp; &lt;b&gt;</v></ns1:r>', $parser->document);
+});
+
 // Test parser reports malformed and empty XML
 Toolkit::test(static function (): void {
 	$parser = new nusoap_parser(envelope('<ns1:r xmlns:ns1="urn:x"><v></ns1:r>'));
