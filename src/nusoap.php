@@ -6416,8 +6416,13 @@ class wsdl extends nusoap_base
                 $xvalue = array();
             }
             foreach ($typeDef['attrs'] as $aName => $attrs) {
+                // a referenced attribute is keyed by its namespace qualified name
+                $qName = $this->contractQname($aName);
                 if (isset($xvalue['!' . $aName])) {
                     $xname = '!' . $aName;
+                    $this->debug("value provided for attribute $aName with key $xname");
+                } elseif (isset($xvalue['!' . $qName])) {
+                    $xname = '!' . $qName;
                     $this->debug("value provided for attribute $aName with key $xname");
                 } elseif (isset($xvalue[$aName])) {
                     $xname = $aName;
@@ -6431,7 +6436,7 @@ class wsdl extends nusoap_base
                     $this->debug("no value provided for attribute $aName");
                 }
                 if ($xname) {
-                    $xml .= " $aName=\"" . $this->expandEntities($xvalue[$xname]) . "\"";
+                    $xml .= " $qName=\"" . $this->expandEntities($xvalue[$xname]) . "\"";
                 }
             }
         } else {
