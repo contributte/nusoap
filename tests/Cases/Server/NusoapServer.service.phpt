@@ -405,3 +405,12 @@ Toolkit::test(static function (): void {
 
 	Assert::same("Operation 'serviceEcho' is not defined in the WSDL for this service", $server->fault->faultstring);
 });
+
+// Test server reads the charset among other content type parameters
+Toolkit::test(static function (): void {
+	[$server] = serve(createServer(), requestEnvelope('serviceEcho'), ['CONTENT_TYPE' => 'text/xml; action="urn:Service#serviceEcho"; charset=utf-8']);
+
+	Assert::false($server->fault);
+	Assert::same('UTF-8', $server->xml_encoding);
+	Assert::same(['v' => 'hello'], $server->methodparams);
+});
