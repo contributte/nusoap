@@ -42,6 +42,18 @@ Toolkit::test(static function (): void {
 	Assert::same('section', $http->fragment);
 });
 
+// Test setURL accepts an uppercase scheme
+Toolkit::test(static function (): void {
+	$https = new soap_transport_http('HTTPS://example.com/service.php');
+	Assert::same('https', $https->scheme);
+	Assert::same(443, $https->port);
+	Assert::same('curl', $https->io_method());
+
+	$http = new soap_transport_http('HTTP://example.com/service.php');
+	Assert::same(80, $http->port);
+	Assert::same('socket', $http->io_method());
+});
+
 // Test User-Agent header is set from library title and version
 Toolkit::test(static function (): void {
 	$http = new soap_transport_http('http://example.com/');
