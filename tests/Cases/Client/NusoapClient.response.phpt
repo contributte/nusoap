@@ -213,3 +213,16 @@ Toolkit::test(static function (): void {
 	Assert::false(property_exists($client, 'custom'));
 	Assert::same('value', $client->return['custom']);
 });
+
+// Test a received fault without faultstring
+Toolkit::test(static function (): void {
+	$body = '<?xml version="1.0" encoding="UTF-8"?>'
+		. '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">'
+		. '<SOAP-ENV:Body><SOAP-ENV:Fault><faultcode>SOAP-ENV:Server</faultcode></SOAP-ENV:Fault></SOAP-ENV:Body>'
+		. '</SOAP-ENV:Envelope>';
+
+	$client = callWithResponse(static fn (): string => "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/xml; charset=UTF-8\r\nContent-Length: " . strlen($body) . "\r\n\r\n" . $body);
+
+	Assert::true($client->fault);
+	Assert::same('SOAP-ENV:Server: ', $client->getError());
+});
