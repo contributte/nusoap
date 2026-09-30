@@ -8691,7 +8691,12 @@ class nusoap_wsdlcache {
             $this->debug("Lock for $filename already exists");
             return false;
         }
-        $this->fplock[md5($filename)] = fopen($filename.".lock", "w");
+        $fp = @fopen($filename.".lock", "w");
+        if (!$fp) {
+            $this->debug("Cannot open lock for $filename");
+            return false;
+        }
+        $this->fplock[md5($filename)] = $fp;
         if ($mode == "r") {
             return flock($this->fplock[md5($filename)], LOCK_SH);
         } else {
