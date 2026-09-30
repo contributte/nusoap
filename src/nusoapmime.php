@@ -452,9 +452,10 @@ class nusoap_server_mime extends nusoap_server {
 	 * @access   private
 	 */
 	function parseRequest($headers, $data) {
-		$this->debug('Entering parseRequest() for payload of length ' . strlen($data) . ' and type of ' . $headers['content-type']);
+		$contentType = isset($headers['content-type']) ? $headers['content-type'] : '';
+		$this->debug('Entering parseRequest() for payload of length ' . strlen($data) . ' and type of ' . $contentType);
 		$this->requestAttachments = array();
-		if (strstr($headers['content-type'], 'multipart/related')) {
+		if (strstr($contentType, 'multipart/related')) {
 			$this->debug('Decode multipart/related');
 			$input = '';
 			foreach ($headers as $k => $v) {
