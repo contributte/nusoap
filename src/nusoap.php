@@ -7103,7 +7103,7 @@ class nusoap_parser extends nusoap_base
                 $this->debug("found root struct $this->root_struct_name, pos $pos");
             }
             // for doclit
-            $attstr .= " $key=\"$value\"";
+            $attstr .= " $key=\"" . str_replace(array('&', '<', '>', '"'), array('&amp;', '&lt;', '&gt;', '&quot;'), $value) . '"';
         }
         // get namespace - must be done after namespace atts are processed
         if (isset($prefix)) {
