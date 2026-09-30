@@ -7812,7 +7812,7 @@ class nusoap_client extends nusoap_base
             // fault?
             if (is_array($return) && isset($return['faultcode'])) {
                 $this->debug('got fault');
-                $this->setError($return['faultcode'] . ': ' . $return['faultstring']);
+                $this->setError($return['faultcode'] . ': ' . (isset($return['faultstring']) ? $return['faultstring'] : ''));
                 $this->fault = true;
                 // only take the fault fields, the response must not overwrite other client properties
                 foreach (array_intersect_key($return, array_flip(array('faultcode', 'faultstring', 'faultactor', 'detail'))) as $k => $v) {
