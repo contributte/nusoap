@@ -3579,8 +3579,10 @@ class soap_transport_http extends nusoap_base
                     }
                 }
                 if ((isset($cookie['domain'])) && (!empty($cookie['domain']))) {
-                    $domain = preg_quote($cookie['domain'], "'");
-                    if (!preg_match("'.*$domain$'i", $this->host)) {
+                    // the host is the domain or one of its subdomains (RFC 6265)
+                    $domain = strtolower(ltrim($cookie['domain'], '.'));
+                    $host = strtolower($this->host);
+                    if ($host !== $domain && substr($host, -strlen($domain) - 1) !== '.' . $domain) {
                         $this->debug('cookie has different domain');
                         continue;
                     }
