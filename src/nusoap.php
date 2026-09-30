@@ -2386,6 +2386,11 @@ class soap_transport_http extends nusoap_base
             $this->$k = $v;
         }
 
+        // schemes are case-insensitive
+        if (isset($u['scheme'])) {
+            $this->scheme = $u['scheme'] = strtolower($u['scheme']);
+        }
+
         // add any GET params to path
         if (isset($u['query']) && $u['query'] != '') {
             $this->path .= '?' . $u['query'];
