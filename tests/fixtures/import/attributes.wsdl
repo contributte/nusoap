@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<definitions xmlns="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:t="urn:types" xmlns:tns="urn:svc" targetNamespace="urn:svc">
+ <types><xsd:schema targetNamespace="urn:svc"><xsd:attribute name="lang" type="xsd:string"/><xsd:complexType name="Text"><xsd:sequence><xsd:element name="v" type="xsd:string"/></xsd:sequence><xsd:attribute ref="tns:lang"/><xsd:attribute ref="xml:lang"/></xsd:complexType></xsd:schema></types>
+ <message name="getRequest"><part name="id" type="xsd:int"/></message>
+ <message name="getResponse"><part name="return" type="t:Person"/></message>
+ <portType name="P"><operation name="get"><input message="tns:getRequest"/><output message="tns:getResponse"/></operation></portType>
+ <binding name="B" type="tns:P"><soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+  <operation name="get"><soap:operation soapAction="urn:svc#get"/><input><soap:body use="encoded" namespace="urn:svc" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></input><output><soap:body use="encoded" namespace="urn:svc" encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"/></output></operation></binding>
+ <service name="S"><port name="SP" binding="tns:B"><soap:address location="http://soap.invalid/svc"/></port></service>
+</definitions>

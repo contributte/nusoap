@@ -33,3 +33,17 @@ Toolkit::test(static function (): void {
 	Assert::same('http://example.com/Service.svc?xsd=xsd0', $wsdl->resolveImportUrl('Service.svc?xsd=xsd0'));
 	Assert::same('http://example.com/xsd/types.php?v=2', $wsdl->resolveImportUrl('/xsd/types.php?v=2'));
 });
+
+// Test referenced attributes are serialized with a prefix
+Toolkit::test(static function (): void {
+	$wsdl = new wsdl(__DIR__ . '/../../fixtures/import/attributes.wsdl');
+	Assert::false($wsdl->getError());
+
+	Assert::same(
+		'<t tns:lang="cs" xml:lang="en" xsi:type="tns:Text"><v xsi:type="xsd:string">x</v></t>',
+		$wsdl->serializeType('t', 'urn:svc:Text', ['v' => 'x', '!tns:lang' => 'cs', '!xml:lang' => 'en'])
+	);
+
+	// The namespace qualified name is still accepted
+	Assert::contains(' tns:lang="cs"', $wsdl->serializeType('t', 'urn:svc:Text', ['v' => 'x', '!urn:svc:lang' => 'cs']));
+});
