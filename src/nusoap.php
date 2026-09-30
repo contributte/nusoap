@@ -3874,7 +3874,7 @@ class nusoap_server extends nusoap_base
         } elseif (preg_match('/wsdl/', $qs)) {
             $this->debug("In service, this is a request for WSDL");
             if ($this->externalWSDLURL) {
-                if (strpos($this->externalWSDLURL, "http://") !== false) { // assume URL
+                if (preg_match('~^https?://~i', $this->externalWSDLURL)) { // assume URL
                     $this->debug("In service, re-direct for WSDL");
                     header('Location: ' . $this->externalWSDLURL);
                 } else { // assume file

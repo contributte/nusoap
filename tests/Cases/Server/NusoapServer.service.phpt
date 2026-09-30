@@ -365,3 +365,19 @@ Toolkit::test(static function (): void {
 	Assert::false($server->fault);
 	Assert::same(requestEnvelope('serviceEcho'), $server->requestSOAP);
 });
+
+// Test server redirects to an external WSDL over HTTP and HTTPS
+Toolkit::test(static function (): void {
+	foreach (['http://soap.invalid/service?wsdl', 'https://soap.invalid/service?wsdl'] as $url) {
+		$wsdl = new wsdl();
+		$wsdl->wsdl = $url;
+
+		[$server, $output] = serve(new nusoap_server($wsdl), '', ['REQUEST_METHOD' => 'GET', 'QUERY_STRING' => 'wsdl']);
+
+		Assert::same($url, $server->externalWSDLURL);
+		Assert::same('', $output, $url);
+		if (function_exists('xdebug_get_headers')) {
+			Assert::contains('Location: ' . $url, xdebug_get_headers(), $url);
+		}
+	}
+});
