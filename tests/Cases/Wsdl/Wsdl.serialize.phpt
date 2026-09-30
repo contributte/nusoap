@@ -61,3 +61,8 @@ Toolkit::test(static function (): void {
 Toolkit::test(static function (): void {
 	Assert::same([], createWsdlServer()->wsdl->getOperationData('missing'));
 });
+
+// Test SOAPAction lookup in a WSDL without operations
+Toolkit::test(static function (): void {
+	Assert::same([], createWsdlServer()->wsdl->getOperationDataForSoapAction('urn:TestService#missing'));
+});
