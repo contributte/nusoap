@@ -166,3 +166,14 @@ Toolkit::test(static function (): void {
 	Assert::same('<c xsi:type="tns:Company">A&amp;B</c>', $wsdl->serializeType('c', 'tns:Company', 'A&B'));
 	Assert::same('<c>A&amp;B</c>', $wsdl->serializeType('c', 'tns:Company', 'A&B', 'literal'));
 });
+
+// Test serializeType serializes an untyped element holding a struct
+Toolkit::test(static function (): void {
+	$wsdl = createWsdl();
+	$wsdl->addComplexType('Box', 'complexType', 'struct', 'all', '', ['content' => ['name' => 'content']]);
+
+	Assert::same(
+		'<b xsi:type="tns:Box"><content><a xsi:type="xsd:int">1</a></content></b>',
+		$wsdl->serializeType('b', 'tns:Box', ['content' => ['a' => 1]])
+	);
+});
