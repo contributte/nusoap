@@ -5532,9 +5532,13 @@ class wsdl extends nusoap_base
     function webDescription()
     {
         $PHP_SELF = $_SERVER['PHP_SELF'] ?? '';
+        $encoding = $this->soap_defencoding;
+        $escape = function ($value) use ($encoding) {
+            return htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, $encoding);
+        };
 
         $b = '<!DOCTYPE html>
-		<html><head><title>NuSOAP: ' . $this->serviceName . '</title>
+		<html><head><title>NuSOAP: ' . $escape($this->serviceName) . '</title>
 		<style type="text/css">
 		    body    { font-family: arial; color: #000000; background-color: #ffffff; margin: 0px 0px 0px 0px; }
 		    p       { font-family: arial; color: #000000; margin-top: 0px; margin-bottom: 12px; }
@@ -5610,12 +5614,13 @@ class wsdl extends nusoap_base
 		<body>
 		<div class=content>
 			<br><br>
-			<div class=title>' . $this->serviceName . '</div>
+			<div class=title>' . $escape($this->serviceName) . '</div>
 			<div class=nav>
 				<p>View the <a href="?wsdl">WSDL</a> for the service.
 				Click on an operation name to view it&apos;s details.</p>
 				<ul>';
         foreach ($this->getOperations() as $op => $data) {
+            $op = $escape($op);
             $b .= "<li><a href='#' onclick=\"popout();popup('$op')\">$op</a>";
             // create hidden div
             $b .= "<div id='$op' class='hidden'>
@@ -5628,15 +5633,15 @@ class wsdl extends nusoap_base
                             $b .= "&nbsp;&nbsp;$captain:<br>";
                             //if(is_array($tenille)){
                             foreach ($tenille as $joanie => $chachi) {
-                                $b .= "&nbsp;&nbsp;&nbsp;&nbsp;$joanie: $chachi<br>";
+                                $b .= "&nbsp;&nbsp;&nbsp;&nbsp;" . $escape($joanie) . ': ' . $escape($chachi) . '<br>';
                             }
                             //}
                         } else {
-                            $b .= "&nbsp;&nbsp;$captain: $tenille<br>";
+                            $b .= "&nbsp;&nbsp;" . $escape($captain) . ': ' . $escape($tenille) . '<br>';
                         }
                     }
                 } else {
-                    $b .= '<span style="color: white">' . ucfirst($donnie) . ":</span> $marie<br>";
+                    $b .= '<span style="color: white">' . $escape(ucfirst($donnie)) . ':</span> ' . $escape($marie) . '<br>';
                 }
             }
             $b .= '</div></li>';
