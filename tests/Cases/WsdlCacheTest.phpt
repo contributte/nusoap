@@ -109,6 +109,17 @@ Toolkit::test(static function (): void {
 	Assert::true($cache->put(createWsdl($url, 'Service')));
 });
 
+// Test cache in a directory that does not exist is empty and cannot be written
+Toolkit::test(static function (): void {
+	$cache = new nusoap_wsdlcache(Environment::getTestDir() . '/missing');
+	$url = 'http://example.com/service?wsdl';
+
+	Assert::null($cache->get($url));
+	Assert::false($cache->put(createWsdl($url, 'Service')));
+	Assert::contains('Unable to obtain mutex', $cache->debug_str);
+	Assert::same([], $cache->fplock);
+});
+
 // Test wsdlcache backward compatibility class
 Toolkit::test(static function (): void {
 	Assert::type(nusoap_wsdlcache::class, new wsdlcache());
