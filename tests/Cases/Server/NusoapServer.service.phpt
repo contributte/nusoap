@@ -381,3 +381,17 @@ Toolkit::test(static function (): void {
 		}
 	}
 });
+
+// Test web description escapes the service and operation details
+Toolkit::test(static function (): void {
+	$server = new nusoap_server();
+	$server->configureWSDL('Tom & Jerry', 'urn:Service', 'http://soap.invalid/service');
+	$server->register('serviceEcho', ['v' => 'xsd:string'], ['return' => 'xsd:string'], 'urn:Service', false, false, false, 'Returns <v> & more');
+
+	[, $output] = serve($server, '', ['REQUEST_METHOD' => 'GET']);
+
+	Assert::contains('<title>NuSOAP: Tom &amp; Jerry</title>', $output);
+	Assert::contains('<div class=title>Tom &amp; Jerry</div>', $output);
+	Assert::contains('Returns &lt;v&gt; &amp; more', $output);
+	Assert::notContains('<v>', $output);
+});
