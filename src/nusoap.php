@@ -3588,8 +3588,13 @@ class soap_transport_http extends nusoap_base
                     }
                 }
                 if ((isset($cookie['path'])) && (!empty($cookie['path']))) {
-                    $path = preg_quote($cookie['path'], "'");
-                    if (!preg_match("'^$path.*'i", $this->path)) {
+                    // the request path is the cookie path or below it (RFC 6265)
+                    $path = $cookie['path'];
+                    $requestPath = strtok($this->path, '?');
+                    if ($requestPath === false) {
+                        $requestPath = '/';
+                    }
+                    if ($requestPath !== $path && (strpos($requestPath, $path) !== 0 || (substr($path, -1) !== '/' && substr($requestPath, strlen($path), 1) !== '/'))) {
                         $this->debug('cookie is for a different path');
                         continue;
                     }
