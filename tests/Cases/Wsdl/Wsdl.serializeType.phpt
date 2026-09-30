@@ -177,3 +177,11 @@ Toolkit::test(static function (): void {
 		$wsdl->serializeType('b', 'tns:Box', ['content' => ['a' => 1]])
 	);
 });
+
+// Test serializeType serializes an Apache Map with struct values
+Toolkit::test(static function (): void {
+	Assert::match(
+		'<m xsi:type="ns%d%:Map"><item><key xsi:type="xsd:string">k</key><value><a xsi:type="xsd:int">1</a></value></item></m>',
+		createWsdl()->serializeType('m', 'http://xml.apache.org/xml-soap:Map', ['k' => ['a' => 1]])
+	);
+});
