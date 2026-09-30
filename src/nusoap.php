@@ -6352,6 +6352,9 @@ class wsdl extends nusoap_base
                     . "</$name>";
             }
         } elseif ($phpType == 'scalar') {
+            if (is_string($value)) {
+                $value = $this->expandEntities($value);
+            }
             if (isset($typeDef['form']) && ($typeDef['form'] == 'qualified')) {
                 $elementNS = " xmlns=\"$ns\"";
             } else {

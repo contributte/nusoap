@@ -157,3 +157,12 @@ Toolkit::test(static function (): void {
 		$wsdl->serializeType('n', 'tns:Note', ['!lang' => 'en', '!' => 'a & <b>'])
 	);
 });
+
+// Test serializeType escapes values of a simpleType
+Toolkit::test(static function (): void {
+	$wsdl = createWsdl();
+	$wsdl->addSimpleType('Company', 'xsd:string', 'simpleType', 'scalar', ['A&B']);
+
+	Assert::same('<c xsi:type="tns:Company">A&amp;B</c>', $wsdl->serializeType('c', 'tns:Company', 'A&B'));
+	Assert::same('<c>A&amp;B</c>', $wsdl->serializeType('c', 'tns:Company', 'A&B', 'literal'));
+});
