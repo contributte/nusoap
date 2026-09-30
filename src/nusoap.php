@@ -4931,8 +4931,11 @@ class wsdl extends nusoap_base
             // the WSDL is a local file
             return substr($url, 0, 1) === '/' ? $url : dirname($this->wsdl) . '/' . $url;
         }
-        return $wsdlparts['scheme'] . '://' . $wsdlparts['host'] . (isset($wsdlparts['port']) ? ':' . $wsdlparts['port'] : '') .
-            substr($wsdlparts['path'], 0, strrpos($wsdlparts['path'], '/') + 1) . $urlparts['path'];
+        $base = $wsdlparts['scheme'] . '://' . $wsdlparts['host'] . (isset($wsdlparts['port']) ? ':' . $wsdlparts['port'] : '');
+        if (substr($url, 0, 1) === '/') {
+            return $base . $urlparts['path'];
+        }
+        return $base . substr($wsdlparts['path'], 0, strrpos($wsdlparts['path'], '/') + 1) . $urlparts['path'];
     }
 
     /**
