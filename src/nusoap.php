@@ -912,6 +912,25 @@ class nusoap_base
     }
 
     /**
+     * gets the XML encoding from the charset parameter of a Content-Type header value
+     *
+     * @param    string $contentType Content-Type header value
+     * @return   string ISO-8859-1, US-ASCII or UTF-8
+     * @access   private
+     */
+    function getEncodingFromContentType($contentType)
+    {
+        if (!preg_match('/;\s*charset\s*=\s*"?([^";\s]*)/i', str_replace('\\', '', $contentType), $matches)) {
+            // should be US-ASCII for HTTP 1.0 or ISO-8859-1 for HTTP 1.1
+            return 'ISO-8859-1';
+        }
+        if (preg_match('/^(ISO-8859-1|US-ASCII|UTF-8)$/i', $matches[1])) {
+            return strtoupper($matches[1]);
+        }
+        return 'US-ASCII';
+    }
+
+    /**
      * returns the time in ODBC canonical form with microseconds
      *
      * @return string The time in ODBC canonical form with microseconds
@@ -8026,18 +8045,7 @@ class nusoap_client extends nusoap_base
             $this->setError('Response not of type '.$this->contentType.': ' . $headers['content-type']);
             return false;
         }
-        if (strpos($headers['content-type'], '=')) {
-            $enc = str_replace('"', '', substr(strstr($headers["content-type"], '='), 1));
-            $this->debug('Got response encoding: ' . $enc);
-            if (preg_match('/^(ISO-8859-1|US-ASCII|UTF-8)$/i', $enc)) {
-                $this->xml_encoding = strtoupper($enc);
-            } else {
-                $this->xml_encoding = 'US-ASCII';
-            }
-        } else {
-            // should be US-ASCII for HTTP 1.0 or ISO-8859-1 for HTTP 1.1
-            $this->xml_encoding = 'ISO-8859-1';
-        }
+        $this->xml_encoding = $this->getEncodingFromContentType($headers['content-type']);
         $this->debug('Use encoding: ' . $this->xml_encoding . ' when creating nusoap_parser');
         $parser = new nusoap_parser($data, $this->xml_encoding, $this->operations, $this->decode_utf8);
         // add parser debug data to our debug
