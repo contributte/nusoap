@@ -226,3 +226,12 @@ Toolkit::test(static function (): void {
 	Assert::true($client->fault);
 	Assert::same('SOAP-ENV:Server: ', $client->getError());
 });
+
+// Test client reads the charset among other content type parameters
+Toolkit::test(static function (): void {
+	$client = callWithResponse(static fn (): string => "HTTP/1.1 200 OK\r\nContent-Type: text/xml; charset=utf-8; action=\"urn:TestService#sayHello\"\r\nContent-Length: " . strlen(RESPONSE_ENVELOPE) . "\r\n\r\n" . RESPONSE_ENVELOPE);
+
+	Assert::false($client->getError());
+	Assert::same('UTF-8', $client->xml_encoding);
+	Assert::same('Canned', $client->return);
+});
