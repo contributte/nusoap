@@ -168,3 +168,11 @@ Toolkit::test(static function (): void {
 	Assert::same('Request not of type text/xml (no content-type header)', $server->getError());
 	Assert::same('SOAP-ENV:Client', $server->fault->faultcode);
 });
+
+// Test client reports a response without content type
+Toolkit::test(static function (): void {
+	$client = new nusoap_client_mime('http://soap.invalid/service');
+
+	Assert::false($client->parseResponse([], '<soap/>'));
+	Assert::same('Response not of type text/xml (no content-type header)', $client->getError());
+});
