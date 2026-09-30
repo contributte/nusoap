@@ -235,3 +235,11 @@ Toolkit::test(static function (): void {
 	Assert::same('UTF-8', $client->xml_encoding);
 	Assert::same('Canned', $client->return);
 });
+
+// Test client accepts an endpoint with an uppercase scheme
+Toolkit::test(static function (): void {
+	$client = callWithResponse(cannedResponse('Content-Length: ' . strlen(RESPONSE_ENVELOPE) . "\r\n", RESPONSE_ENVELOPE), new nusoap_client('HTTP://soap.invalid/service'));
+
+	Assert::false($client->getError());
+	Assert::same('Canned', $client->return);
+});
