@@ -185,3 +185,14 @@ Toolkit::test(static function (): void {
 		createWsdl()->serializeType('m', 'http://xml.apache.org/xml-soap:Map', ['k' => ['a' => 1]])
 	);
 });
+
+// Test serializeType serializes repeated untyped elements holding structs
+Toolkit::test(static function (): void {
+	$wsdl = createWsdl();
+	$wsdl->addComplexType('Boxes', 'complexType', 'struct', 'sequence', '', ['box' => ['name' => 'box', 'maxOccurs' => 'unbounded']]);
+
+	Assert::same(
+		'<b xsi:type="tns:Boxes"><box><a xsi:type="xsd:int">1</a></box><box><a xsi:type="xsd:int">2</a></box></b>',
+		$wsdl->serializeType('b', 'tns:Boxes', ['box' => [['a' => 1], ['a' => 2]]])
+	);
+});

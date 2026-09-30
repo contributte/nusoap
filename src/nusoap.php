@@ -6520,7 +6520,7 @@ class wsdl extends nusoap_base
                                 $xml .= $this->serializeType($eName, isset($attrs['type']) ? $attrs['type'] : $attrs['ref'], $v, $use, $encodingStyle, $unqualified);
                             } else {
                                 // serialize generic type (can this ever really happen?)
-                                $this->debug("calling serialize_val() for $v, $eName, false, false, false, false, $use");
+                                $this->debug("calling serialize_val() for $eName, false, false, false, false, $use");
                                 $xml .= $this->serialize_val($v, $eName, false, false, false, false, $use);
                             }
                         }
