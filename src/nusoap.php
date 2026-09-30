@@ -6083,7 +6083,7 @@ class wsdl extends nusoap_base
             $this->debug("in serializeType: soapval overrides value to " . $this->varDump($value));
             if ($attrs) {
                 if (!is_array($value)) {
-                    $value['!'] = $value;
+                    $value = array('!' => $value);
                 }
                 foreach ($attrs as $n => $v) {
                     $value['!' . $n] = $v;
@@ -6110,6 +6110,15 @@ class wsdl extends nusoap_base
                     $elementNS = " xmlns=\"\"";
                 } else {
                     $elementNS = '';
+                }
+                // attributes of a simple value, e.g. from a soapval
+                if (is_array($value) && array_key_exists('!', $value)) {
+                    foreach ($value as $k => $v) {
+                        if ($k !== '!' && substr($k, 0, 1) === '!') {
+                            $elementNS .= ' ' . substr($k, 1) . '="' . $this->expandEntities($v) . '"';
+                        }
+                    }
+                    $value = $value['!'];
                 }
                 if (is_null($value)) {
                     if ($use == 'literal') {

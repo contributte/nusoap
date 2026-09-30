@@ -128,3 +128,12 @@ Toolkit::test(static function (): void {
 	Assert::false($wsdl->serializeType('x', 'tns:Unknown', 5));
 	Assert::same('tns:Unknown (Unknown) is not a supported type.', $wsdl->getError());
 });
+
+// Test serializeType writes the attributes of a soapval with an XSD type
+Toolkit::test(static function (): void {
+	$wsdl = createWsdl();
+	$value = new soapval('price', 'decimal', '9.5', false, 'http://www.w3.org/2001/XMLSchema', ['currency' => 'EUR & co']);
+
+	Assert::same('<price currency="EUR &amp; co" xsi:type="xsd:decimal">9.5</price>', $wsdl->serializeType('price', 'xsd:decimal', $value));
+	Assert::same('<price currency="EUR &amp; co" xsi:type="xsd:decimal">9.5</price>', $wsdl->serializeType('price', 'xsd:decimal', $value, 'literal'));
+});
