@@ -6179,7 +6179,7 @@ class wsdl extends nusoap_base
                     }
                     $contents = '';
                     foreach ($value as $k => $v) {
-                        $this->debug("serializing map element: key $k, value $v");
+                        $this->debug("serializing map element: key $k");
                         $contents .= '<item>';
                         $contents .= $this->serialize_val($k, 'key', false, false, false, false, $use);
                         $contents .= $this->serialize_val($v, 'value', false, false, false, false, $use);
