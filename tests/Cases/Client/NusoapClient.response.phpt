@@ -194,3 +194,22 @@ Toolkit::test(static function (): void {
 	Assert::same('<ns2:Session xmlns:ns2="urn:h"><id>42</id></ns2:Session>', $client->getHeaders());
 	Assert::same(['Session' => ['id' => '42']], $client->getHeader());
 });
+
+// Test a received fault only sets the fault properties of the client
+Toolkit::test(static function (): void {
+	$body = '<?xml version="1.0" encoding="UTF-8"?>'
+		. '<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/">'
+		. '<SOAP-ENV:Body><SOAP-ENV:Fault>'
+		. '<faultcode>SOAP-ENV:Server</faultcode><faultstring>Broken</faultstring>'
+		. '<endpoint>http://attacker.invalid/</endpoint><custom>value</custom>'
+		. '</SOAP-ENV:Fault></SOAP-ENV:Body></SOAP-ENV:Envelope>';
+
+	$client = callWithResponse(static fn (): string => "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/xml; charset=UTF-8\r\nContent-Length: " . strlen($body) . "\r\n\r\n" . $body);
+
+	Assert::true($client->fault);
+	Assert::same('SOAP-ENV:Server', $client->faultcode);
+	Assert::same('Broken', $client->faultstring);
+	Assert::same('http://soap.invalid/service', $client->endpoint);
+	Assert::false(property_exists($client, 'custom'));
+	Assert::same('value', $client->return['custom']);
+});
