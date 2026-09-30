@@ -98,3 +98,17 @@ Toolkit::test(static function (): void {
 	Assert::same('', $http->getCookiesForRequest(null));
 	Assert::same('', $http->getCookiesForRequest([]));
 });
+
+// Test cookie domain matches the host or its subdomains only (RFC 6265)
+Toolkit::test(static function (): void {
+	$cookies = [
+		['name' => 'exact', 'value' => '1', 'domain' => 'example.com'],
+		['name' => 'dot', 'value' => '2', 'domain' => '.example.com'],
+		['name' => 'sub', 'value' => '3', 'domain' => 'api.example.com'],
+	];
+
+	Assert::same('exact=1; dot=2; ', (new soap_transport_http('http://example.com/'))->getCookiesForRequest($cookies));
+	Assert::same('exact=1; dot=2; sub=3; ', (new soap_transport_http('http://api.example.com/'))->getCookiesForRequest($cookies));
+	Assert::same('exact=1; dot=2; ', (new soap_transport_http('http://www.EXAMPLE.com/'))->getCookiesForRequest($cookies));
+	Assert::same('', (new soap_transport_http('http://notexample.com/'))->getCookiesForRequest($cookies));
+});
