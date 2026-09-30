@@ -120,6 +120,22 @@ Toolkit::test(static function (): void {
 	Assert::same([], $cache->fplock);
 });
 
+// Test remove does not release a lock it did not obtain
+Toolkit::test(static function (): void {
+	$cache = new nusoap_wsdlcache(createCacheDir());
+	$url = 'http://example.com/service?wsdl';
+	$cache->put(createWsdl($url, 'Service'));
+	$filename = $cache->createFilename($url);
+
+	Assert::true($cache->obtainMutex($filename, 'w'));
+	Assert::true($cache->remove($url));
+	Assert::false(file_exists($filename));
+
+	// The lock is still held and can be released once
+	Assert::true($cache->releaseMutex($filename));
+	Assert::same([], $cache->fplock);
+});
+
 // Test wsdlcache backward compatibility class
 Toolkit::test(static function (): void {
 	Assert::type(nusoap_wsdlcache::class, new wsdlcache());

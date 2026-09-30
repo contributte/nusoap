@@ -8762,11 +8762,13 @@ class nusoap_wsdlcache {
             $this->debug("$wsdl ($filename) not in cache to be removed");
             return false;
         }
-        // ignore errors obtaining mutex
-        $this->obtainMutex($filename, "w");
+        // ignore errors obtaining mutex, but release it only when obtained
+        $locked = $this->obtainMutex($filename, "w");
         $ret = unlink($filename);
         $this->debug("Removed ($ret) $wsdl ($filename) from cache");
-        $this->releaseMutex($filename);
+        if ($locked) {
+            $this->releaseMutex($filename);
+        }
         return $ret;
     }
 }
