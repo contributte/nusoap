@@ -395,3 +395,13 @@ Toolkit::test(static function (): void {
 	Assert::contains('Returns &lt;v&gt; &amp; more', $output);
 	Assert::notContains('<v>', $output);
 });
+
+// Test server with a WSDL without operations reports the operation as not defined
+Toolkit::test(static function (): void {
+	$server = new nusoap_server();
+	$server->configureWSDL('EmptyService', 'urn:Service', 'http://soap.invalid/service');
+
+	[$server] = serve($server, requestEnvelope('serviceEcho'));
+
+	Assert::same("Operation 'serviceEcho' is not defined in the WSDL for this service", $server->fault->faultstring);
+});

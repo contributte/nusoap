@@ -5440,7 +5440,8 @@ class wsdl extends nusoap_base
             // binding type of port matches parameter
             if ($portData['bindingType'] == $bindingType) {
                 // loop through operations for the binding
-                foreach ($this->bindings[$portData['binding']]['operations'] as $opData) {
+                $operations = isset($this->bindings[$portData['binding']]['operations']) ? $this->bindings[$portData['binding']]['operations'] : array();
+                foreach ($operations as $opData) {
                     if ($opData['soapAction'] == $soapAction) {
                         return $opData;
                     }
