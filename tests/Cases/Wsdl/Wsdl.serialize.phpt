@@ -56,3 +56,8 @@ Toolkit::test(static function (): void {
 		],
 	], parseSerializedWsdl($server)->portTypes);
 });
+
+// Test operation lookup in a WSDL without operations
+Toolkit::test(static function (): void {
+	Assert::same([], createWsdlServer()->wsdl->getOperationData('missing'));
+});
