@@ -6142,7 +6142,8 @@ class wsdl extends nusoap_base
                         $value = 'true';
                     }
                 }
-                if ($uqType == 'string' && gettype($value) == 'string') {
+                // any string value may contain special characters, e.g. an anyURI with a query
+                if (is_string($value) && $uqType !== 'boolean') {
                     $value = $this->expandEntities($value);
                 }
                 if (($uqType == 'long' || $uqType == 'unsignedLong') && gettype($value) == 'double') {

@@ -137,3 +137,11 @@ Toolkit::test(static function (): void {
 	Assert::same('<price currency="EUR &amp; co" xsi:type="xsd:decimal">9.5</price>', $wsdl->serializeType('price', 'xsd:decimal', $value));
 	Assert::same('<price currency="EUR &amp; co" xsi:type="xsd:decimal">9.5</price>', $wsdl->serializeType('price', 'xsd:decimal', $value, 'literal'));
 });
+
+// Test serializeType escapes string values of all XSD types
+Toolkit::test(static function (): void {
+	$wsdl = createWsdl();
+
+	Assert::same('<u xsi:type="xsd:anyURI">http://example.com/?a=1&amp;b=2</u>', $wsdl->serializeType('u', 'xsd:anyURI', 'http://example.com/?a=1&b=2'));
+	Assert::same('<t>a &lt;b&gt;</t>', $wsdl->serializeType('t', 'xsd:token', 'a <b>', 'literal'));
+});
