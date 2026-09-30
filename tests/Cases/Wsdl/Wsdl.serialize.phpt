@@ -1,5 +1,6 @@
 <?php declare(strict_types = 1);
 
+use Contributte\Tester\Environment;
 use Contributte\Tester\Toolkit;
 use Tester\Assert;
 
@@ -13,6 +14,17 @@ function createWsdlServer(): nusoap_server
 	return $server;
 }
 
+function parseSerializedWsdl(nusoap_server $server): wsdl
+{
+	$file = Environment::getTestDir() . '/' . uniqid() . '.wsdl';
+	file_put_contents($file, $server->wsdl->serialize());
+
+	$wsdl = new wsdl($file);
+	Assert::false($wsdl->getError());
+
+	return $wsdl;
+}
+
 // Test WSDL of a service without operations can be serialized
 Toolkit::test(static function (): void {
 	$xml = createWsdlServer()->wsdl->serialize();
@@ -20,4 +32,27 @@ Toolkit::test(static function (): void {
 	Assert::contains("<portType name=\"TestServicePortType\">\n</portType>", $xml);
 	Assert::contains('<binding name="TestServiceBinding" type="tns:TestServicePortType">', $xml);
 	Assert::contains('<soap:address location="http://soap.invalid/service"/>', $xml);
+});
+
+// Test WSDL of a service without operations can be parsed again
+Toolkit::test(static function (): void {
+	$wsdl = parseSerializedWsdl(createWsdlServer());
+
+	Assert::same(['TestServicePortType' => []], $wsdl->portTypes);
+	Assert::same([], $wsdl->getOperations());
+});
+
+// Test WSDL parsing does not add the next section to the last portType operation
+Toolkit::test(static function (): void {
+	$server = createWsdlServer();
+	$server->register('echo', ['v' => 'xsd:string'], ['return' => 'xsd:string'], 'urn:TestService');
+
+	Assert::same([
+		'TestServicePortType' => [
+			'echo' => [
+				'input' => ['message' => 'echo'],
+				'output' => ['message' => 'echoResponse'],
+			],
+		],
+	], parseSerializedWsdl($server)->portTypes);
 });

@@ -5121,8 +5121,11 @@ class wsdl extends nusoap_base
                 $name = substr(strstr($name, ':'), 1);
             }
             // process attributes, expanding any prefixes to namespaces
+            // a top-level WSDL element starts the next section below, so it is not data of the current one
+            $topLevel = in_array($name, array('import', 'types', 'message', 'portType', 'binding', 'service'), true)
+                && ($namespace === '' || $namespace === 'http://schemas.xmlsoap.org/wsdl/');
             // find status, register data
-            switch ($this->status) {
+            switch ($topLevel ? '' : $this->status) {
                 case 'message':
                     if ($name == 'part') {
                         if (isset($attrs['type'])) {
