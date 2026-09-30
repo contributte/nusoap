@@ -4839,18 +4839,13 @@ class wsdl extends nusoap_base
             // Schema imports
             foreach ($this->schemas as $ns => $list) {
                 foreach ($list as $xsKey => $xs) {
-                    $wsdlparts = parse_url($this->wsdl);    // this is bogusly simple!
                     foreach ($xs->imports as $ns2 => $list2) {
                         for ($ii = 0; $ii < count($list2); $ii++) {
                             if (array_key_exists($ii, $list2) && (!isset($list2[$ii]['loaded']) || !$list2[$ii]['loaded'])) {
                                 @$this->schemas[$ns][$xsKey]->imports[$ns2][$ii]['loaded'] = true;
                                 $url = $list2[$ii]['location'];
                                 if ($url != '') {
-                                    $urlparts = parse_url($url);
-                                    if (!isset($urlparts['host'])) {
-                                        $url = $wsdlparts['scheme'] . '://' . $wsdlparts['host'] . (isset($wsdlparts['port']) ? ':' . $wsdlparts['port'] : '') .
-                                            substr($wsdlparts['path'], 0, strrpos($wsdlparts['path'], '/') + 1) . $urlparts['path'];
-                                    }
+                                    $url = $this->resolveImportUrl($url);
                                     if (!in_array($url, $imported_urls)) {
                                         $this->parseWSDL($url);
                                         $imported++;
@@ -4865,18 +4860,13 @@ class wsdl extends nusoap_base
                 }
             }
             // WSDL imports
-            $wsdlparts = parse_url($this->wsdl);    // this is bogusly simple!
             foreach ($this->import as $ns => $list) {
                 for ($ii = 0; $ii < count($list); $ii++) {
                     if (!$list[$ii]['loaded']) {
                         $this->import[$ns][$ii]['loaded'] = true;
                         $url = $list[$ii]['location'];
                         if ($url != '') {
-                            $urlparts = parse_url($url);
-                            if (!isset($urlparts['host'])) {
-                                $url = $wsdlparts['scheme'] . '://' . $wsdlparts['host'] . (isset($wsdlparts['port']) ? ':' . $wsdlparts['port'] : '') .
-                                    substr($wsdlparts['path'], 0, strrpos($wsdlparts['path'], '/') + 1) . $urlparts['path'];
-                            }
+                            $url = $this->resolveImportUrl($url);
                             if (!in_array($url, $imported_urls)) {
                                 $this->parseWSDL($url);
                                 $imported++;
@@ -4921,6 +4911,28 @@ class wsdl extends nusoap_base
                 }
             }
         }
+    }
+
+    /**
+     * resolves the location of an imported WSDL or schema against the location of this WSDL
+     *
+     * @param string $url import location
+     * @return string location to load the import from
+     * @access private
+     */
+    function resolveImportUrl($url)
+    {
+        $urlparts = parse_url($url);
+        if (isset($urlparts['host'])) {
+            return $url;
+        }
+        $wsdlparts = parse_url($this->wsdl);
+        if (!isset($wsdlparts['host'])) {
+            // the WSDL is a local file
+            return substr($url, 0, 1) === '/' ? $url : dirname($this->wsdl) . '/' . $url;
+        }
+        return $wsdlparts['scheme'] . '://' . $wsdlparts['host'] . (isset($wsdlparts['port']) ? ':' . $wsdlparts['port'] : '') .
+            substr($wsdlparts['path'], 0, strrpos($wsdlparts['path'], '/') + 1) . $urlparts['path'];
     }
 
     /**
