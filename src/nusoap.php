@@ -1004,21 +1004,8 @@ function timestamp_to_iso8601($timestamp, $utc = true)
         }
     }
     if ($utc) {
-        $pattern = '/' .
-            '([0-9]{4})-' .    // centuries & years CCYY-
-            '([0-9]{2})-' .    // months MM-
-            '([0-9]{2})' .    // days DD
-            'T' .            // separator T
-            '([0-9]{2}):' .    // hours hh:
-            '([0-9]{2}):' .    // minutes mm:
-            '([0-9]{2})(\.[0-9]*)?' . // seconds ss.ss...
-            '(Z|[+\-][0-9]{2}:?[0-9]{2})?' . // Z to indicate UTC, -/+HH:MM:SS.SS... for local tz's
-            '/';
-
-        if (preg_match($pattern, $datestr, $regs)) {
-            return sprintf('%04d-%02d-%02dT%02d:%02d:%02dZ', $regs[1], $regs[2], $regs[3], $regs[4], $regs[5], $regs[6]);
-        }
-        return false;
+        // the offset cannot just be replaced by Z, the time has to be converted
+        return gmdate('Y-m-d\TH:i:s\Z', $timestamp);
     } else {
         return $datestr;
     }
