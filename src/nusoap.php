@@ -6268,7 +6268,7 @@ class wsdl extends nusoap_base
 
                 if (isset($typeDef['simpleContent']) && $typeDef['simpleContent'] == 'true') {
                     if (isset($value['!'])) {
-                        $xml .= $value['!'];
+                        $xml .= is_string($value['!']) ? $this->expandEntities($value['!']) : $value['!'];
                         $this->debug("in serializeType: serialized simpleContent for type $type");
                     } else {
                         $this->debug("in serializeType: no simpleContent to serialize for type $type");

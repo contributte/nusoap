@@ -145,3 +145,15 @@ Toolkit::test(static function (): void {
 	Assert::same('<u xsi:type="xsd:anyURI">http://example.com/?a=1&amp;b=2</u>', $wsdl->serializeType('u', 'xsd:anyURI', 'http://example.com/?a=1&b=2'));
 	Assert::same('<t>a &lt;b&gt;</t>', $wsdl->serializeType('t', 'xsd:token', 'a <b>', 'literal'));
 });
+
+// Test serializeType escapes the simple content of a complexType
+Toolkit::test(static function (): void {
+	$wsdl = createWsdl();
+	$wsdl->addComplexType('Note', 'complexType', 'struct', '', '', [], ['lang' => ['name' => 'lang', 'type' => 'xsd:string']]);
+	$wsdl->schemas['urn:TestService'][0]->complexTypes['Note']['simpleContent'] = 'true';
+
+	Assert::same(
+		'<n lang="en" xsi:type="tns:Note">a &amp; &lt;b&gt;</n>',
+		$wsdl->serializeType('n', 'tns:Note', ['!lang' => 'en', '!' => 'a & <b>'])
+	);
+});
