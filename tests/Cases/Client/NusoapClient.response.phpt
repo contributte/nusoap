@@ -243,3 +243,28 @@ Toolkit::test(static function (): void {
 	Assert::false($client->getError());
 	Assert::same('Canned', $client->return);
 });
+
+// Test client follows absolute and relative redirects
+Toolkit::test(static function (): void {
+	$locations = [
+		'http://soap.invalid/moved' => 'POST /moved HTTP/1.1',
+		'/other/service?x=1' => 'POST /other/service?x=1 HTTP/1.1',
+		'next.php' => 'POST /app/next.php HTTP/1.1',
+	];
+
+	foreach ($locations as $location => $requestLine) {
+		$requests = new ArrayObject();
+		$client = new nusoap_client('http://soap.invalid/app/service?wsdl');
+		$client->persistentConnection = FakeHttpStream::createTransport('http://soap.invalid/app/service?wsdl', static function (string $request) use ($requests, $location): string {
+			$requests[] = $request;
+
+			return count($requests) === 1
+				? "HTTP/1.1 302 Found\r\nLocation: " . $location . "\r\nContent-Length: 0\r\n\r\n"
+				: "HTTP/1.1 200 OK\r\nContent-Type: text/xml; charset=UTF-8\r\nContent-Length: " . strlen(RESPONSE_ENVELOPE) . "\r\n\r\n" . RESPONSE_ENVELOPE;
+		});
+
+		Assert::same('Canned', $client->call('sayHello', ['name' => 'World'], 'urn:TestService'), $location);
+		Assert::count(2, $requests, $location);
+		Assert::match($requestLine . "\r\nHost: soap.invalid\r\n%A%", $requests[1], $location);
+	}
+});
