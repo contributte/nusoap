@@ -2408,6 +2408,30 @@ class soap_transport_http extends nusoap_base
     }
 
     /**
+     * resolves a redirect location, which may be relative (RFC 7231), against the current URL
+     *
+     * @param string $location Location header value
+     * @return string absolute URL
+     * @access private
+     */
+    function resolveLocation($location)
+    {
+        if (preg_match('~^[a-z][a-z0-9+.-]*://~i', $location)) {
+            return $location;
+        }
+        $default_port = $this->scheme === 'https' ? 443 : 80;
+        $base = $this->scheme . '://' . $this->host . ((int) $this->port !== $default_port ? ':' . $this->port : '');
+        if (substr($location, 0, 2) === '//') {
+            return $this->scheme . ':' . $location;
+        }
+        if (substr($location, 0, 1) === '/') {
+            return $base . $location;
+        }
+        $path = strtok($this->path, '?');
+        return $base . substr($path, 0, strrpos($path, '/') + 1) . $location;
+    }
+
+    /**
      * gets the I/O method to use
      *
      * @return    string    I/O method to use (socket|curl|unknown)
@@ -3357,7 +3381,7 @@ class soap_transport_http extends nusoap_base
         // see if we need to resend the request with http digest authentication
         if (isset($this->incoming_headers['location']) && ($http_status == 301 || $http_status == 302 || $http_status == 307)) {
             $this->debug("Got $http_status $http_reason with Location: " . $this->incoming_headers['location']);
-            $this->setURL($this->incoming_headers['location']);
+            $this->setURL($this->resolveLocation($this->incoming_headers['location']));
             $this->tryagain = true;
             return false;
         }
