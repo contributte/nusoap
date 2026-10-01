@@ -284,3 +284,11 @@ Toolkit::test(static function (): void {
 	Assert::same('Canned', $client->call('sayHello', ['name' => 'World'], 'urn:TestService'));
 	Assert::match("POST /moved HTTP/1.1\r\n%A%", $requests[1]);
 });
+
+// Test client reports a response without content type
+Toolkit::test(static function (): void {
+	$client = callWithResponse(static fn (): string => "HTTP/1.1 200 OK\r\nContent-Length: " . strlen(RESPONSE_ENVELOPE) . "\r\n\r\n" . RESPONSE_ENVELOPE);
+
+	Assert::false($client->return);
+	Assert::same('Response not of type text/xml (no content-type header)', $client->getError());
+});
