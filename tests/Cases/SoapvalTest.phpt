@@ -116,3 +116,11 @@ Toolkit::test(static function (): void {
 		(new nusoap_base())->serialize_val([null, null], 'list')
 	);
 });
+
+// Test serialize_val declares an array of floats with the type of its items
+Toolkit::test(static function (): void {
+	Assert::same(
+		'<list xsi:type="SOAP-ENC:Array" SOAP-ENC:arrayType="xsd:float[2]"><item xsi:type="xsd:float">1.5</item><item xsi:type="xsd:float">2.5</item></list>',
+		(new nusoap_base())->serialize_val([1.5, 2.5], 'list')
+	);
+});

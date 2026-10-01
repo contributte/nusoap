@@ -647,6 +647,9 @@ class nusoap_base
                         } elseif (isset($tt) && isset($this->typemap[$this->XMLSchemaVersion][$tt])) {
                             if ($tt == 'integer') {
                                 $tt = 'int';
+                            } elseif ($tt === 'double') {
+                                // the items are serialized as xsd:float
+                                $tt = 'float';
                             }
                             $array_typename = 'xsd:' . $tt;
                         } elseif (isset($tt) && $tt == 'arraySimple') {
