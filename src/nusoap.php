@@ -631,6 +631,9 @@ class nusoap_base
                                 $tt = $v->type;
                             } elseif (is_array($v)) {
                                 $tt = $this->isArraySimpleOrStruct($v);
+                            } elseif (is_object($v)) {
+                                // objects are serialized as structs
+                                $tt = 'arrayStruct';
                             } else {
                                 $tt = gettype($v);
                             }

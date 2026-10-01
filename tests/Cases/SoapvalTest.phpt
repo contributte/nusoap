@@ -97,3 +97,14 @@ Toolkit::test(static function (): void {
 	Assert::same('<i>1</i>', $base->serialize_val(1, 'i', false, false, false, false, 'literal'));
 	Assert::same('<n/>', $base->serialize_val(null, 'n', false, false, false, false, 'literal'));
 });
+
+// Test serialize_val declares an array of objects as an array of structs
+Toolkit::test(static function (): void {
+	$item = new stdClass();
+	$item->a = 1;
+
+	Assert::same(
+		'<list xsi:type="SOAP-ENC:Array" SOAP-ENC:arrayType="unnamed_struct_use_soapval[2]"><item><a xsi:type="xsd:int">1</a></item><item><a xsi:type="xsd:int">1</a></item></list>',
+		(new nusoap_base())->serialize_val([$item, $item], 'list')
+	);
+});
