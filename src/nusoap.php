@@ -2365,6 +2365,7 @@ class soap_transport_http extends nusoap_base
      */
     function setURL($url)
     {
+        $previous = array($this->scheme, $this->host, $this->port);
         $this->url = $url;
 
         $u = parse_url($url);
@@ -2394,6 +2395,13 @@ class soap_transport_http extends nusoap_base
 
         $this->uri = $this->path;
         $this->digest_uri = $this->uri;
+
+        // a persistent connection to another server cannot be reused, e.g. after a redirect
+        if (is_resource($this->fp) && !is_array($this->proxy) && $previous !== array($this->scheme, $this->host, $this->port)) {
+            fclose($this->fp);
+            $this->fp = false;
+            $this->debug('closed persistent connection to previous server');
+        }
 
         // build headers
         if (!isset($u['port'])) {
