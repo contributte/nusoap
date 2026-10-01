@@ -308,3 +308,18 @@ Toolkit::test(static function (): void {
 	Assert::false($client->getError());
 	Assert::same('Canned', $client->return);
 });
+
+// Test client does not reuse a persistent connection after a redirect to another host
+Toolkit::test(static function (): void {
+	$requests = new ArrayObject();
+	$client = new nusoap_client('http://soap.invalid/service');
+	$client->persistentConnection = FakeHttpStream::createTransport('http://soap.invalid/service', static function (string $request) use ($requests): string {
+		$requests[] = $request;
+
+		return "HTTP/1.1 302 Found\r\nLocation: http://other.invalid/service\r\nContent-Length: 0\r\n\r\n";
+	});
+
+	Assert::false($client->call('sayHello', ['name' => 'World'], 'urn:TestService'));
+	Assert::count(1, $requests);
+	Assert::match("HTTP Error: Couldn't open socket connection to server http://other.invalid/service%A%", $client->getError());
+});
