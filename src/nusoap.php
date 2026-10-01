@@ -6907,18 +6907,20 @@ class nusoap_parser extends nusoap_base
                 $parseErrors['errorString'] = xml_error_string(xml_get_error_code($this->parser));
             }
 
-            // Check if there is any attachment
+            // Check if there is any attachment, only a payload that is not XML can be a multipart message
             $this->attachments = array();
-            foreach(preg_split("/((\r?\n)|(\r\n?))/", $xml) as $line){
-                if(preg_match(("/^--(.*)/"), $line, $matches)) {
-                    $this->attachments[] = array ();
-                    $this->attachments[count($this->attachments)-1]['boundaryStr'] = $matches[1];
-                } elseif(preg_match(("/Content-Type:(.*)/"), $line, $matches)) {
-                    $this->attachments[count($this->attachments)-1]['Content-Type'] = $matches[1];
-                } elseif(preg_match(("/Content-Id:(.*)/"), $line, $matches)) {
-                    $this->attachments[count($this->attachments)-1]['Content-Id'] = $matches[1];
-                } elseif(preg_match(("/Content-Transfer-Encoding:(.*)/"), $line, $matches)) {
-                    $this->attachments[count($this->attachments)-1]['Content-Transfer-Encoding'] = $matches[1];
+            if ($parseErrors !== array()) {
+                foreach(preg_split("/((\r?\n)|(\r\n?))/", $xml) as $line){
+                    if(preg_match(("/^--(.*)/"), $line, $matches)) {
+                        $this->attachments[] = array ();
+                        $this->attachments[count($this->attachments)-1]['boundaryStr'] = $matches[1];
+                    } elseif(preg_match(("/Content-Type:(.*)/"), $line, $matches)) {
+                        $this->attachments[count($this->attachments)-1]['Content-Type'] = $matches[1];
+                    } elseif(preg_match(("/Content-Id:(.*)/"), $line, $matches)) {
+                        $this->attachments[count($this->attachments)-1]['Content-Id'] = $matches[1];
+                    } elseif(preg_match(("/Content-Transfer-Encoding:(.*)/"), $line, $matches)) {
+                        $this->attachments[count($this->attachments)-1]['Content-Transfer-Encoding'] = $matches[1];
+                    }
                 }
             }
 

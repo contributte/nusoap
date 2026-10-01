@@ -221,6 +221,14 @@ Toolkit::test(static function (): void {
 	Assert::same('<ns1:r xmlns:ns1="urn:x"><v note="&quot;a&quot; &amp; &lt;b&gt;">1</v></ns1:r>', $parser->document);
 });
 
+// Test parser does not take text resembling MIME headers for attachments
+Toolkit::test(static function (): void {
+	$parser = parse('<ns1:r xmlns:ns1="urn:x"><text>Hello' . "\n-- \nJoe\nContent-Type: text/plain" . '</text></ns1:r>');
+
+	Assert::same(['text' => "Hello\n-- \nJoe\nContent-Type: text/plain"], $parser->get_soapbody());
+	Assert::same([], $parser->attachments);
+});
+
 // Test parser reports malformed and empty XML
 Toolkit::test(static function (): void {
 	$parser = new nusoap_parser(envelope('<ns1:r xmlns:ns1="urn:x"><v></ns1:r>'));
