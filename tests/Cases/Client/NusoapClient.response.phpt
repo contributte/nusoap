@@ -268,3 +268,19 @@ Toolkit::test(static function (): void {
 		Assert::match($requestLine . "\r\nHost: soap.invalid\r\n%A%", $requests[1], $location);
 	}
 });
+
+// Test client follows a permanent redirect keeping the method (RFC 7538)
+Toolkit::test(static function (): void {
+	$requests = new ArrayObject();
+	$client = new nusoap_client('http://soap.invalid/service');
+	$client->persistentConnection = FakeHttpStream::createTransport('http://soap.invalid/service', static function (string $request) use ($requests): string {
+		$requests[] = $request;
+
+		return count($requests) === 1
+			? "HTTP/1.1 308 Permanent Redirect\r\nLocation: /moved\r\nContent-Length: 0\r\n\r\n"
+			: "HTTP/1.1 200 OK\r\nContent-Type: text/xml; charset=UTF-8\r\nContent-Length: " . strlen(RESPONSE_ENVELOPE) . "\r\n\r\n" . RESPONSE_ENVELOPE;
+	});
+
+	Assert::same('Canned', $client->call('sayHello', ['name' => 'World'], 'urn:TestService'));
+	Assert::match("POST /moved HTTP/1.1\r\n%A%", $requests[1]);
+});
