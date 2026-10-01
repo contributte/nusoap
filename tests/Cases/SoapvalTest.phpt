@@ -108,3 +108,11 @@ Toolkit::test(static function (): void {
 		(new nusoap_base())->serialize_val([$item, $item], 'list')
 	);
 });
+
+// Test serialize_val declares an array of nulls as an array of anyType
+Toolkit::test(static function (): void {
+	Assert::same(
+		'<list xsi:type="SOAP-ENC:Array" SOAP-ENC:arrayType="xsd:anyType[2]"><item xsi:nil="true"/><item xsi:nil="true"/></list>',
+		(new nusoap_base())->serialize_val([null, null], 'list')
+	);
+});
