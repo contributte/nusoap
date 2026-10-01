@@ -642,7 +642,7 @@ class nusoap_base
                             $xml .= $this->serialize_val($v, 'item', false, false, false, false, $use);
                             ++$i;
                         }
-                        if (count($array_types) > 1) {
+                        if (count($array_types) > 1 || isset($array_types['NULL'])) {
                             $array_typename = 'xsd:anyType';
                         } elseif (isset($tt) && isset($this->typemap[$this->XMLSchemaVersion][$tt])) {
                             if ($tt == 'integer') {
