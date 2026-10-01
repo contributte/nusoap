@@ -1959,21 +1959,24 @@ class nusoap_xmlschema extends nusoap_base
         $str = '';
         //print "in sTD() for type $type<br>";
         if ($typeDef = $this->getTypeDef($type)) {
-            $str .= '<' . $type;
-            if (is_array($typeDef['attrs'])) {
+            $name = rtrim($type, '^');
+            $str .= '<' . $name;
+            if (isset($typeDef['attrs']) && is_array($typeDef['attrs'])) {
                 foreach ($typeDef['attrs'] as $attName => $data) {
                     $str .= " $attName=\"{type = " . $data['type'] . "}\"";
                 }
             }
-            $str .= " xmlns=\"" . $this->schema['targetNamespace'] . "\"";
-            if (count($typeDef['elements']) > 0) {
+            $str .= " xmlns=\"" . $this->schemaTargetNamespace . "\"";
+            if (isset($typeDef['elements']) && count($typeDef['elements']) > 0) {
                 $str .= ">";
                 foreach ($typeDef['elements'] as $element => $eData) {
-                    $str .= $this->serializeTypeDef($element);
+                    // a local element is not a type of its own
+                    $elementStr = $this->serializeTypeDef($element);
+                    $str .= $elementStr !== false ? $elementStr : "<$element/>";
                 }
-                $str .= "</$type>";
+                $str .= "</$name>";
             } elseif ($typeDef['typeClass'] == 'element') {
-                $str .= "></$type>";
+                $str .= "></$name>";
             } else {
                 $str .= "/>";
             }

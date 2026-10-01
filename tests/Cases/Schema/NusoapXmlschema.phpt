@@ -285,6 +285,19 @@ Toolkit::test(static function (): void {
 	Assert::true(isset($schema->complexTypes['Person']));
 });
 
+// Test serializeTypeDef renders a sample of a type
+Toolkit::test(static function (): void {
+	$schema = parseSchema();
+
+	Assert::same(
+		'<Person id="{type = http://www.w3.org/2001/XMLSchema:string}" xmlns="urn:t"><name/><age/></Person>',
+		$schema->serializeTypeDef('Person')
+	);
+	Assert::same('<Color xmlns="urn:t"/>', $schema->serializeTypeDef('Color'));
+	Assert::same('<count xmlns="urn:t"></count>', $schema->serializeTypeDef('count^'));
+	Assert::false($schema->serializeTypeDef('Missing'));
+});
+
 // Test XMLSchema backward compatibility class
 Toolkit::test(static function (): void {
 	Assert::type(nusoap_xmlschema::class, new XMLSchema());
