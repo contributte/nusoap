@@ -32,6 +32,14 @@ function serviceEcho(string $v): string
 	return $v;
 }
 
+/**
+ * @return array<string, int>
+ */
+function serviceStruct(): array
+{
+	return ['a' => 1];
+}
+
 function serviceFault(): nusoap_fault
 {
 	return new nusoap_fault('SOAP-ENV:Server', '', 'Custom failure', 'details');
@@ -413,4 +421,16 @@ Toolkit::test(static function (): void {
 	Assert::false($server->fault);
 	Assert::same('UTF-8', $server->xml_encoding);
 	Assert::same(['v' => 'hello'], $server->methodparams);
+});
+
+// Test server faults when the result does not match the WSDL type
+Toolkit::test(static function (): void {
+	$server = new nusoap_server();
+	$server->configureWSDL('EchoService', 'urn:Service', 'http://soap.invalid/service');
+	$server->register('serviceStruct', ['v' => 'xsd:string'], ['return' => 'xsd:int'], 'urn:Service');
+
+	[$server] = serve($server, requestEnvelope('serviceStruct'));
+
+	Assert::same('SOAP-ENV:Server', $server->fault->faultcode);
+	Assert::same('unable to serialize result', $server->fault->faultstring);
 });
