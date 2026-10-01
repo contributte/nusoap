@@ -292,3 +292,19 @@ Toolkit::test(static function (): void {
 	Assert::false($client->return);
 	Assert::same('Response not of type text/xml (no content-type header)', $client->getError());
 });
+
+// Test client reports a response with an invalid status line
+Toolkit::test(static function (): void {
+	$client = callWithResponse(static fn (): string => "GARBAGE\r\nContent-Type: text/xml\r\nContent-Length: 4\r\n\r\n<a/>");
+
+	Assert::false($client->return);
+	Assert::same('HTTP Error: invalid HTTP response status line: GARBAGE', $client->getError());
+});
+
+// Test client accepts a status line without reason phrase
+Toolkit::test(static function (): void {
+	$client = callWithResponse(static fn (): string => "HTTP/1.1 200\r\nContent-Type: text/xml; charset=UTF-8\r\nContent-Length: " . strlen(RESPONSE_ENVELOPE) . "\r\n\r\n" . RESPONSE_ENVELOPE);
+
+	Assert::false($client->getError());
+	Assert::same('Canned', $client->return);
+});

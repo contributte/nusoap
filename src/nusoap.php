@@ -3375,6 +3375,10 @@ class soap_transport_http extends nusoap_base
 
         $this->response_status_line = $header_array[0];
         $arr = explode(' ', $this->response_status_line, 3);
+        if (count($arr) < 2 || !preg_match('~^HTTP/\d~', $arr[0])) {
+            $this->setError('invalid HTTP response status line: ' . $this->response_status_line);
+            return false;
+        }
         $http_status = intval($arr[1]);
         $http_reason = count($arr) > 2 ? $arr[2] : '';
 
