@@ -229,6 +229,14 @@ Toolkit::test(static function (): void {
 	Assert::same([], $parser->attachments);
 });
 
+// Test parser ignores MIME headers outside of a MIME part
+Toolkit::test(static function (): void {
+	$parser = new nusoap_parser("Content-Type: text/plain\nnot xml");
+
+	Assert::match('XML error parsing SOAP payload on line 1: %a%', $parser->getError());
+	Assert::same([], $parser->attachments);
+});
+
 // Test parser reports malformed and empty XML
 Toolkit::test(static function (): void {
 	$parser = new nusoap_parser(envelope('<ns1:r xmlns:ns1="urn:x"><v></ns1:r>'));
