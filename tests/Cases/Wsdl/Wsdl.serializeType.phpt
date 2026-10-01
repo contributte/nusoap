@@ -196,3 +196,11 @@ Toolkit::test(static function (): void {
 		$wsdl->serializeType('b', 'tns:Boxes', ['box' => [['a' => 1], ['a' => 2]]])
 	);
 });
+
+// Test serializeType rejects an array for an XSD simple type
+Toolkit::test(static function (): void {
+	$wsdl = createWsdl();
+
+	Assert::false($wsdl->serializeType('i', 'xsd:int', ['a' => 1]));
+	Assert::same('xsd:int (int) cannot be serialized from a value of type array', $wsdl->getError());
+});

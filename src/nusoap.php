@@ -6187,6 +6187,10 @@ class wsdl extends nusoap_base
                     // JBoss/Axis does this sometimes
                     return $this->serialize_val($value, $name, false, false, false, false, $use);
                 }
+                if (is_array($value) || (is_object($value) && !method_exists($value, '__toString'))) {
+                    $this->setError("$type ($uqType) cannot be serialized from a value of type " . gettype($value));
+                    return false;
+                }
                 if ($uqType == 'boolean') {
                     if ((is_string($value) && $value == 'false') || (!$value)) {
                         $value = 'false';
