@@ -8042,7 +8042,7 @@ class nusoap_client extends nusoap_base
                 } elseif ($this->getError()) {
                     return false;
                 } else {
-                    $this->debug('got response, length=' . strlen($this->responseData) . ' type=' . $http->incoming_headers['content-type']);
+                    $this->debug('got response, length=' . strlen($this->responseData) . ' type=' . (isset($http->incoming_headers['content-type']) ? $http->incoming_headers['content-type'] : ''));
                     return $this->parseResponse($http->incoming_headers, $this->responseData);
                 }
             default:
