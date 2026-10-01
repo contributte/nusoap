@@ -6914,6 +6914,9 @@ class nusoap_parser extends nusoap_base
                     if(preg_match(("/^--(.*)/"), $line, $matches)) {
                         $this->attachments[] = array ();
                         $this->attachments[count($this->attachments)-1]['boundaryStr'] = $matches[1];
+                    } elseif (count($this->attachments) === 0) {
+                        // a header outside of a MIME part
+                        continue;
                     } elseif(preg_match(("/Content-Type:(.*)/"), $line, $matches)) {
                         $this->attachments[count($this->attachments)-1]['Content-Type'] = $matches[1];
                     } elseif(preg_match(("/Content-Id:(.*)/"), $line, $matches)) {
