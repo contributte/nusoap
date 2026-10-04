@@ -22,7 +22,7 @@
     "contributte/qa": "^0.4",
     "contributte/tester": "^0.3",
     "contributte/phpstan": "^0.2",
-    "pear/mail_mime": "^1.10",
+    "pear/mail_mime": "^1.10.2",
     "forked/mail_mime-decode": "^1.5"
   },
   "autoload": {
