@@ -1,5 +1,6 @@
 .docs export-ignore
 .github export-ignore
+.editorconfig export-ignore
 docs export-ignore
 samples export-ignore
 tests export-ignore
